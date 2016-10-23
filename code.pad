@@ -1,0 +1,33 @@
+PROGRAM PadLang;
+VAR
+$=
+  Multi-line koment, = tam byt nemusi, ale viac sa mi to paci
+  tu sa deklaruju globalne premenne, ako v pascali
+=$
+   number : INTEGER;
+   a, b   : INTEGER;
+   y      : REAL;
+   odd    : INTEGER;
+{ $ program zacina slovom BEGIN, ako Pascal, ale mam radsej C-like, cize zacina s { volitelne $
+    number := 2; $ := znamena prirad hodnotu. $
+    a := number ;
+    b := 10 * a + 10 * number DIV 4;
+    y := 20 / 7 + 3.14;
+    b := 30 / 2 / b * (a + 25 DIV 2);
+    IF a > 2 {
+        a := 3;
+        y := 2;
+    } ELSE {
+        a := 5;
+        y := 35;
+    }; $ Narozdiel od C, scope musi koncit ';'! aj IF scope je prikaz $
+    $ Zbytocny anonymny scope $
+    {
+        a := a + a;
+        IF (3 MOD 2) = 1 {
+            odd := 1;
+        } ELSE {
+            odd := 0;
+        };
+    };
+}.  $ Program konci bodkou, ako v Pascale. $
