@@ -39,7 +39,7 @@ def main():
     symtab_builder.visit(tree)
     print('')
     print('Symbol Table contents:')
-    print(symtab_builder.symtab)
+    print(symtab_builder.debug_dump())
 
     interpreter = Interpreter(tree)
     result = interpreter.interpret()

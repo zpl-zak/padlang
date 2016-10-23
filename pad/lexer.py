@@ -55,6 +55,8 @@ RESERVED_KEYWORDS = {
     'ELSE': Token('ELSE', 'ELSE'),
     'CASE': Token('CASE', 'CASE'),
     'OF': Token('OF', 'OF'),
+    'PROCEDURE': Token('PROCEDURE', 'PROCEDURE'),
+    'FUNCTION': Token('FUNCTION', 'FUNCTION'),
     'END': Token('END', 'END'),
 }
 
@@ -122,7 +124,7 @@ class Lexer(object):
             result += self.current_char
             self.advance()
 
-        token = RESERVED_KEYWORDS.get(result, Token(ID, result))
+        token = RESERVED_KEYWORDS.get(result.upper(), Token(ID, result))
         return token
 
     def get_next_token(self):

@@ -20,6 +20,7 @@
 from collections import OrderedDict
 
 from pad.walker import NodeVisitor
+from pad.ltypes import *
 
 
 class Symbol(object):
@@ -38,6 +39,18 @@ class VarSymbol(Symbol):
     __repr__ = __str__
 
 
+class MethodSymbol(Symbol):
+    def __init__(self, name, decl, type_spec, type):
+        super(MethodSymbol, self).__init__(name, type)
+        self.decl = decl
+        self.type_spec = type_spec
+
+    def __str__(self):
+        return '<METHOD {name}:{type}>'.format(name=self.name, type=self.type)
+
+    __repr__ = __str__
+
+
 class BuiltinTypeSymbol(Symbol):
     def __init__(self, name):
         super(BuiltinTypeSymbol, self).__init__(name)
@@ -49,9 +62,10 @@ class BuiltinTypeSymbol(Symbol):
 
 
 class SymbolTable(object):
-    def __init__(self):
-        self._symbols = OrderedDict()
+    def __init__(self, parent=None):
+        self.symbols = OrderedDict()
         self._init_builtins()
+        self.parent = parent
 
     def _init_builtins(self):
         self.define(BuiltinTypeSymbol('INTEGER'))
@@ -59,7 +73,7 @@ class SymbolTable(object):
 
     def __str__(self):
         s = 'Symbols: {symbols}'.format(
-            symbols=[value for value in self._symbols.values()]
+            symbols=[value for value in self.symbols.values()]
         )
         return s
 
@@ -67,26 +81,51 @@ class SymbolTable(object):
 
     def define(self, symbol):
         print('Define: %s' % symbol)
-        self._symbols[symbol.name] = symbol
+        self.symbols[symbol.name] = symbol
 
     def lookup(self, name):
         print('Lookup: %s' % name)
-        symbol = self._symbols.get(name)
-        # 'symbol' is either an instance of the Symbol class or 'None'
+        symbol = self.symbols.get(name)
+        if symbol is None and self.parent is not None:
+            symbol = self.parent.lookup(name)
+
+        print(symbol)
         return symbol
 
 
 class SymbolTableBuilder(NodeVisitor):
-    def __init__(self):
-        self.symtab = SymbolTable()
+    def __init__(self, parent=None):
+        self.symtab = SymbolTable(parent)
+        self.child = None
+
+    def debug_dump(self):
+        s = '(' + str(self.symtab) + ')'
+
+        if self.child is not None:
+            s += '\n(' + self.child.debug_dump() + ')'
+
+        return s
 
     def visit_Block(self, node):
+        self.child = table = SymbolTableBuilder(self.symtab)
+
         for declaration in node.declarations:
-            self.visit(declaration)
-        self.visit(node.compound_statement)
+            table.visit(declaration)
+
+        for method in node.methods:
+            table.visit(method)
+
+        table.visit(node.compound_statement)
 
     def visit_Program(self, node):
         self.visit(node.block)
+
+    def visit_Method(self, node):
+        self.child = table = SymbolTableBuilder(self.symtab)
+
+        table.visit(node.code)
+        for decl in node.decl:
+            table.visit(decl)
 
     def visit_BinOp(self, node):
         self.visit(node.left)
@@ -103,7 +142,18 @@ class SymbolTableBuilder(NodeVisitor):
             self.visit(child)
 
     def visit_CaseSwitch(self, node):
-        pass
+        self.visit(node.test)
+        conds = node.conds
+        alt = node.alt
+
+        for case in conds:
+            case_conds = case.cond
+            res = case.cons
+            for cond in case_conds:
+                self.visit(cond)
+                self.visit(res)
+
+        self.visit(alt)
 
     def visit_NoOp(self, node):
         pass
@@ -124,7 +174,8 @@ class SymbolTableBuilder(NodeVisitor):
         self.visit(node.right)
 
     def visit_Condition(self, node):
-        pass
+        self.visit(node.cons)
+        self.visit(node.alt)
 
     def visit_Var(self, node):
         var_name = node.value

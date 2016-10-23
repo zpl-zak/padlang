@@ -49,6 +49,14 @@ class Compound(AST):
         self.children = []
 
 
+class Method(AST):
+    def __init__(self, name, decl, code, method_type):
+        self.name = name
+        self.decl = decl
+        self.code = code
+        self.type = method_type
+
+
 class Assign(AST):
     def __init__(self, left, op, right):
         self.left = left
@@ -97,9 +105,10 @@ class Program(AST):
 
 
 class Block(AST):
-    def __init__(self, declarations, compound_statement):
+    def __init__(self, declarations, methods, compound_statement):
         self.declarations = declarations
         self.compound_statement = compound_statement
+        self.methods = methods
 
 
 class VarDecl(AST):
@@ -145,22 +154,59 @@ class Parser(object):
         return program_node
 
     def block(self):
-        """block : declarations compound_statement"""
+        """block : declarations (procedure | function)+ compound_statement"""
         declaration_nodes = self.declarations()
+        methods = []
+
+        while self.current_token.type in (PROCEDURE, FUNCTION):
+            if self.current_token.type == PROCEDURE:
+                methods.append(self.procedure())
+            elif self.current_token.type == FUNCTION:
+                methods.append(self.procedure())
+
         compound_statement_node = self.compound_statement()
-        node = Block(declaration_nodes, compound_statement_node)
+        node = Block(declaration_nodes, methods, compound_statement_node)
         return node
+
+    def procedure(self):
+        """
+        procedure   : variable (LPAREN declarations RPAREN) SEMI block
+        """
+        self.eat(PROCEDURE)
+        name = self.variable()
+        decl = []
+
+        if self.current_token.type == LPAREN:
+            self.eat(LPAREN)
+            decl = self.declarations()
+            self.eat(RPAREN)
+
+        self.eat(SEMI)
+        block = self.block()
+        node = Method(name, decl, block, PROCEDURE)
+
+        if self.current_token.type == SEMI:
+            self.eat(SEMI)
+
+        return node
+
+    def function(self):
+        pass
 
     def declarations(self):
         """declarations : VAR (variable_declaration SEMI)+
                         | empty
         """
         declarations = []
+
         if self.current_token.type == VAR:
             self.eat(VAR)
-            while self.current_token.type == ID:
-                var_decl = self.variable_declaration()
-                declarations.extend(var_decl)
+
+        while self.current_token.type == ID:
+            var_decl = self.variable_declaration()
+            declarations.extend(var_decl)
+
+            if self.current_token.type == SEMI:
                 self.eat(SEMI)
 
         return declarations
@@ -262,7 +308,10 @@ class Parser(object):
         """
         self.eat(CASE)
         var = self.variable()
-        self.eat(OF)
+
+        if self.current_token.type == OF:
+            self.eat(OF)
+
         conds = self.case_list()
         alt = self.empty()
         if self.current_token.type == ELSE:

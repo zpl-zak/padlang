@@ -20,6 +20,12 @@ $=
    a, b   : INTEGER;
    y      : REAL;
    odd    : INTEGER;
+
+PROCEDURE Test(arg0 : INTEGER);
+{
+
+};
+
 { $ This is the entry point of our program $
     number := 2; $ := is an assignment operator $
     a := number ;
@@ -39,20 +45,21 @@ $=
         $ Here we can evaluate (3 % 2) inline and compare it with right-hand side. $
         IF (3 MOD 2) = 0 THEN $= OPTIONAL: THEN keyword. =$ {
             odd := 1;
-        } ELSE IF (2 + 2) = 3 THEN {
+        } ELSE IF (2 + 2) = 3 {
             odd := 0;
         } ELSE {
             odd := 3;
         };
     };
     a := 6;
-    CASE a OF {
+    CASE a {
         2,6 : {
             y := 4;
         };
         3 : {
             y := 5;
         };
+        (8-2) : y := 66;
         ELSE {
             y := 0;
         };
@@ -61,6 +68,6 @@ $=
 
 $=
     NOTE:
-        Instead of using { and } braces, you can use Pascal's BEGIN and END; keyword alternatives.
+        Instead of using { and }; braces, you can use Pascal's BEGIN and END; keyword alternatives.
         These are here to support basic Pascal programs.
 =$

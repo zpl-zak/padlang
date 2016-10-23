@@ -45,6 +45,9 @@ class Interpreter(NodeVisitor):
         # Do nothing
         pass
 
+    def visit_Method(self, node):
+        pass
+
     def visit_BinOp(self, node):
         if node.op.type == PLUS:
             return self.visit(node.left) + self.visit(node.right)
