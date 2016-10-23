@@ -177,10 +177,7 @@ class Parser(object):
                      | REAL
         """
         token = self.current_token
-        if self.current_token.type == INTEGER:
-            self.eat(INTEGER)
-        else:
-            self.eat(REAL)
+        self.eat(token.type)
         node = Type(token)
         return node
 
@@ -201,7 +198,7 @@ class Parser(object):
 
     def statement_list(self):
         """
-        statement_list : statement
+        statement_list : statement (SEMI)
                        | statement SEMI statement_list
         """
         node = self.statement()
@@ -246,7 +243,7 @@ class Parser(object):
 
     def condition_statement(self):
         """
-        condition_statement : IF condition THEN statement
+        condition_statement : IF condition (THEN) statement ((ELSE condition_statement) | (ELSE statement))
         """
         self.eat(IF)
         left = self.expr()
@@ -263,7 +260,10 @@ class Parser(object):
         cons = self.statement()
         if self.current_token.type == ELSE:
             self.eat(ELSE)
-            alt = self.statement()
+            if self.current_token.type == IF:
+                alt = self.condition_statement()
+            else:
+                alt = self.statement()
         else:
             alt = self.empty()
         node = Condition(left, op, right, cons, alt)

@@ -37,10 +37,12 @@ $=
     {
         a := a + a;
         $ Here we can evaluate (3 % 2) inline and compare it with right-hand side. $
-        IF (3 MOD 2) = (2- 1) THEN $= OPTIONAL: THEN keyword. =$ {
+        IF (3 MOD 2) = 0 THEN $= OPTIONAL: THEN keyword. =$ {
             odd := 1;
-        } ELSE {
+        } ELSE IF (2 + 2) = 3 THEN {
             odd := 0;
+        } ELSE {
+            odd := 3;
         };
     };
 }.  $ Program's entry point ends with DOT at the end of the scope. Pascal-style. $
