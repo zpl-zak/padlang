@@ -37,7 +37,7 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     keywords='interpreted development language pascal c',
-    packages=find_packages(exclude=['contrib', 'docs', 'tests', 'samples']),
+    packages=find_packages(exclude=['contrib', 'docs', 'tests', 'samples', 'tests']),
     #install_requires=['peppercorn'],
     extras_require={
         'dev': ['check-manifest'],

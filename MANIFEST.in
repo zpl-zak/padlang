@@ -3,3 +3,4 @@ include LICENSE.md
 
 # Include the data files
 recursive-include samples *
+recursive-include tests *

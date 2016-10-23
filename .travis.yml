@@ -11,4 +11,4 @@ python:
 script:
  - pip install -q padlang
  - python setup.py -q install
- - python test_interpreter.py
+ - python tests/test_interpreter.py
