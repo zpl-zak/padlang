@@ -17,10 +17,12 @@
 #                                                                             #
 ###############################################################################
 
-from lexer import Lexer
-from parse import Parser
 from symtable import SymbolTableBuilder
+
 from interpreter import Interpreter
+from parse import Parser
+
+from pad.lexer import Lexer
 
 
 def main():

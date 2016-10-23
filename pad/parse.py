@@ -17,7 +17,7 @@
 #                                                                             #
 ###############################################################################
 
-from ltypes import *
+from pad.ltypes import *
 
 class AST(object):
     pass

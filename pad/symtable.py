@@ -18,7 +18,8 @@
 ###############################################################################
 
 from collections import OrderedDict
-from walker import NodeVisitor
+
+from pad.walker import NodeVisitor
 
 
 class Symbol(object):

@@ -2,12 +2,12 @@ import unittest
 
 class LexerTestCase(unittest.TestCase):
     def makeLexer(self, text):
-        from lexer import Lexer
+        from pad.lexer import Lexer
         lexer = Lexer(text)
         return lexer
 
     def test_tokens(self):
-        from lexer import (
+        from pad.lexer import (
             INTEGER_CONST, REAL_CONST, MUL, INTEGER_DIV, FLOAT_DIV, PLUS, MINUS, LPAREN, RPAREN,
             ASSIGN, DOT, ID, SEMI, BEGIN, END
         )
@@ -37,10 +37,9 @@ class LexerTestCase(unittest.TestCase):
 
 class InterpreterTestCase(unittest.TestCase):
     def makeInterpreter(self, text):
-        from interpreter import Interpreter
-        from lexer import Lexer
-        import parse
-        from symtable import SymbolTableBuilder
+        from pad.interpreter import Interpreter
+        from pad.lexer import Lexer
+        from pad.symtable import SymbolTableBuilder
         lexer = Lexer(text)
         parser = Parser(lexer)
         tree = parser.parse()

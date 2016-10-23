@@ -18,8 +18,10 @@
 ###############################################################################
 
 from collections import OrderedDict
-from walker import NodeVisitor
+
 from ltypes import *
+
+from pad.walker import NodeVisitor
 
 
 class Interpreter(NodeVisitor):
