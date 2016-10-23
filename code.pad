@@ -1,33 +1,52 @@
+$=
+  Copyright 2016 Dominik Madarasz
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+       http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+=$
+
 PROGRAM PadLang;
 VAR
 $=
-  Multi-line koment, = tam byt nemusi, ale viac sa mi to paci
-  tu sa deklaruju globalne premenne, ako v pascali
+  Here we declare global variables.
 =$
    number : INTEGER;
    a, b   : INTEGER;
    y      : REAL;
    odd    : INTEGER;
-{ $ program zacina slovom BEGIN, ako Pascal, ale mam radsej C-like, cize zacina s { volitelne $
-    number := 2; $ := znamena prirad hodnotu. $
+{ $ This is the entry point of our program $
+    number := 2; $ := is an assignment operator $
     a := number ;
     b := 10 * a + 10 * number DIV 4;
     y := 20 / 7 + 3.14;
     b := 30 / 2 / b * (a + 25 DIV 2);
-    IF a > 2 {
+    IF a > 2 { $ Simple IF-ELSE condition statement. $
         a := 3;
         y := 2;
     } ELSE {
         a := 5;
         y := 35;
-    }; $ Narozdiel od C, scope musi koncit ';'! aj IF scope je prikaz $
-    $ Zbytocny anonymny scope $
+    }; $ Literally every scope HAS to end with SEMI-COLON (';'), this is different from C language! $
+    $ Anonymous scope. $
     {
         a := a + a;
-        IF (3 MOD 2) = 1 {
+        $ Here we can evaluate (3 % 2) inline and compare it with right-hand side. $
+        IF (3 MOD 2) = (2- 1) THEN $= OPTIONAL: THEN keyword. =$ {
             odd := 1;
         } ELSE {
             odd := 0;
         };
     };
-}.  $ Program konci bodkou, ako v Pascale. $
+}.  $ Program's entry point ends with DOT at the end of the scope. Pascal-style. $
+
+$=
+    NOTE:
+        Instead of using { and } braces, you can use Pascal's BEGIN and END keyword alternatives.
+        These are here to support basic Pascal programs.
+=$
