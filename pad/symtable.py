@@ -102,6 +102,9 @@ class SymbolTableBuilder(NodeVisitor):
         for child in node.children:
             self.visit(child)
 
+    def visit_CaseSwitch(self, node):
+        pass
+
     def visit_NoOp(self, node):
         pass
 

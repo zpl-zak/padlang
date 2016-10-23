@@ -73,6 +73,24 @@ class Interpreter(NodeVisitor):
         for child in node.children:
             self.visit(child)
 
+    def visit_CaseSwitch(self, node):
+        test = self.visit(node.test)
+        conds = node.conds
+        alt = node.alt
+
+        met = False
+        for case in conds:
+            case_conds = case.cond
+            res = case.cons
+            for cond in case_conds:
+                if self.visit(cond) == test:
+                    self.visit(res)
+                    met = True
+
+        if met is False:
+            self.visit(alt)
+
+
     def visit_Assign(self, node):
         var_name = node.left.value
         var_value = self.visit(node.right)

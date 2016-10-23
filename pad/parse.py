@@ -65,6 +65,19 @@ class Condition(AST):
         self.alt = alt
 
 
+class Case(AST):
+    def __init__(self, cond, cons):
+        self.cond = cond
+        self.cons = cons
+
+
+class CaseSwitch(AST):
+    def __init__(self, test, conds, alt):
+        self.test = test
+        self.conds = conds
+        self.alt = alt
+
+
 class Var(AST):
     """The Var node is constructed out of ID token."""
 
@@ -107,9 +120,8 @@ class Parser(object):
         # set current token to the first token taken from the input
         self.current_token = self.lexer.get_next_token()
 
-    @staticmethod
-    def error():
-        raise Exception('Invalid syntax')
+    def error(self):
+        raise Exception('Invalid syntax: ' + self.current_token.type)
 
     def eat(self, token_type):
         # compare the current token type with the passed token
@@ -207,7 +219,7 @@ class Parser(object):
 
         while self.current_token.type == SEMI:
             self.eat(SEMI)
-            if self.current_token == END:
+            if self.current_token.type == END:
                 break
             results.append(self.statement())
 
@@ -218,6 +230,7 @@ class Parser(object):
         statement : compound_statement
                   | assignment_statement
                   | condition_statement
+                  | case_statement
                   | empty
         """
         if self.current_token.type == BEGIN:
@@ -226,6 +239,8 @@ class Parser(object):
             node = self.assignment_statement()
         elif self.current_token.type == IF:
             node = self.condition_statement()
+        elif self.current_token.type == CASE:
+            node = self.case_statement()
         else:
             node = self.empty()
         return node
@@ -239,6 +254,58 @@ class Parser(object):
         self.eat(ASSIGN)
         right = self.expr()
         node = Assign(left, token, right)
+        return node
+
+    def case_statement(self):
+        """
+        case_statement : CASE variable OF case_list
+        """
+        self.eat(CASE)
+        var = self.variable()
+        self.eat(OF)
+        conds = self.case_list()
+        alt = self.empty()
+        if self.current_token.type == ELSE:
+            self.eat(ELSE)
+            alt = self.statement()
+            self.eat(SEMI)
+        self.eat(END)
+        node = CaseSwitch(var, conds, alt)
+        return node
+
+    def case_list(self):
+        """
+        case_list   : case (SEMI)
+                    | case SEMI case_list
+        """
+        self.eat(BEGIN)
+        node = self.case()
+
+        results = [node]
+
+        while self.current_token.type == SEMI:
+            self.eat(SEMI)
+            if self.current_token.type in (END, ELSE):
+                break
+            results.append(self.case())
+
+        return results
+
+    def case(self):
+        """
+        case    : factor (COMMA factor)+ COLON statement
+        """
+        cond = self.factor()
+        conds = [cond]
+
+        while self.current_token.type == COMMA:
+            self.eat(COMMA)
+            conds.append(self.factor())
+
+        self.eat(COLON)
+        cons = self.statement()
+
+        node = Case(conds, cons)
         return node
 
     def condition_statement(self):
@@ -260,10 +327,7 @@ class Parser(object):
         cons = self.statement()
         if self.current_token.type == ELSE:
             self.eat(ELSE)
-            if self.current_token.type == IF:
-                alt = self.condition_statement()
-            else:
-                alt = self.statement()
+            alt = self.statement()
         else:
             alt = self.empty()
         node = Condition(left, op, right, cons, alt)
@@ -290,10 +354,7 @@ class Parser(object):
 
         while self.current_token.type in (PLUS, MINUS):
             token = self.current_token
-            if token.type == PLUS:
-                self.eat(PLUS)
-            elif token.type == MINUS:
-                self.eat(MINUS)
+            self.eat(token.type)
 
             node = BinOp(left=node, op=token, right=self.term())
 
@@ -305,14 +366,7 @@ class Parser(object):
 
         while self.current_token.type in (MUL, INTEGER_DIV, INTEGER_MOD, FLOAT_DIV):
             token = self.current_token
-            if token.type == MUL:
-                self.eat(MUL)
-            elif token.type == INTEGER_DIV:
-                self.eat(INTEGER_DIV)
-            elif token.type == INTEGER_MOD:
-                self.eat(INTEGER_MOD)
-            elif token.type == FLOAT_DIV:
-                self.eat(FLOAT_DIV)
+            self.eat(token.type)
 
             node = BinOp(left=node, op=token, right=self.factor())
 
