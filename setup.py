@@ -12,7 +12,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='padlang',
-    version='1.0.1',
+    version='1.0.3',
     description='PADLang is yet another interpreted language now with focus on Pascal/C-like syntax',
     long_description=long_description,
     url='https://github.com/zaklaus/padlang',
@@ -37,7 +37,7 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     keywords='interpreted development language pascal c',
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    packages=find_packages(exclude=['contrib', 'docs', 'tests', 'samples']),
     #install_requires=['peppercorn'],
     extras_require={
         'dev': ['check-manifest'],
@@ -46,7 +46,7 @@ setup(
     package_data={
 
     },
-    data_files=[('samples', ['code.pad', 'sample.py'])],
+    data_files=[],
     entry_points={
         'console_scripts': [
             'pad=pad:main',
