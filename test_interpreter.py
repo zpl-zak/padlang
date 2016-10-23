@@ -40,6 +40,7 @@ class InterpreterTestCase(unittest.TestCase):
         from pad.interpreter import Interpreter
         from pad.lexer import Lexer
         from pad.symtable import SymbolTableBuilder
+        from pad.parse import Parser
         lexer = Lexer(text)
         parser = Parser(lexer)
         tree = parser.parse()

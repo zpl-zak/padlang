@@ -19,7 +19,7 @@
 
 from collections import OrderedDict
 
-from ltypes import *
+from pad.ltypes import *
 
 from pad.walker import NodeVisitor
 

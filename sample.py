@@ -17,10 +17,10 @@
 #                                                                             #
 ###############################################################################
 
-from symtable import SymbolTableBuilder
+from pad.symtable import SymbolTableBuilder
 
-from interpreter import Interpreter
-from parse import Parser
+from pad.interpreter import Interpreter
+from pad.parse import Parser
 
 from pad.lexer import Lexer
 
