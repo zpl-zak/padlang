@@ -12,7 +12,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='padlang',
-    version='1.0.0',
+    version='1.0.1',
     description='PADLang is yet another interpreted language now with focus on Pascal/C-like syntax',
     long_description=long_description,
     url='https://github.com/zaklaus/padlang',
@@ -44,12 +44,13 @@ setup(
         'test': ['coverage'],
     },
     package_data={
-        'pad': ['code.pad'],
+
     },
-    #data_files=[('my_data', ['data/data_file'])],
+    data_files=[('samples', ['code.pad', 'sample.py'])],
     entry_points={
         'console_scripts': [
             'pad=pad:main',
         ],
     },
+    include_package_data=True
 )
