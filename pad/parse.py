@@ -92,6 +92,11 @@ class CaseSwitch(AST):
         self.alt = alt
 
 
+class VarDeclInline(AST):
+    def __init__(self, decls):
+        self.decls = decls
+
+
 class Var(AST):
     """The Var node is constructed out of ID token."""
 
@@ -118,9 +123,10 @@ class Block(AST):
 
 
 class VarDecl(AST):
-    def __init__(self, var_node, type_node):
+    def __init__(self, var_node, type_node, val_node=None):
         self.var_node = var_node
         self.type_node = type_node
+        self.val_node = val_node
 
 
 class Type(AST):
@@ -238,7 +244,7 @@ class Parser(object):
         return declarations
 
     def variable_declaration(self):
-        """variable_declaration : ID (COMMA ID)* COLON type_spec"""
+        """variable_declaration : ID (COMMA ID)* COLON type_spec (ASSIGN expr)*"""
         var_nodes = [Var(self.current_token)]  # first ID
         self.eat(ID)
 
@@ -250,10 +256,17 @@ class Parser(object):
         self.eat(COLON)
 
         type_node = self.type_spec()
+        value = None
+
+        if self.current_token.type == ASSIGN:
+            self.eat(ASSIGN)
+            value = self.expr()
+
         var_declarations = [
-            VarDecl(var_node, type_node)
+            VarDecl(var_node, type_node, value)
             for var_node in var_nodes
             ]
+
         return var_declarations
 
     def type_spec(self):
@@ -303,6 +316,7 @@ class Parser(object):
                   | assignment_statement
                   | condition_statement
                   | case_statement
+                  | variable_declaration
                   | expr
                   | empty
         """
@@ -315,6 +329,9 @@ class Parser(object):
         elif self.current_token.type == RET:
             self.eat(RET)
             node = self.expr()
+        elif self.current_token.type == VAR:
+            self.eat(VAR)
+            node = VarDeclInline(self.variable_declaration())
         elif self.current_token.type == CASE:
             node = self.case_statement()
         else:

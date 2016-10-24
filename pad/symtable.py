@@ -177,6 +177,10 @@ class SymbolTableBuilder(NodeVisitor):
         var_symbol = VarSymbol(var_name, type_symbol)
         self.symtab.define(var_symbol)
 
+    def visit_VarDeclInline(self, node):
+        for decl in node.decls:
+            self.visit(decl)
+
     def visit_Assign(self, node):
         var_name = node.left.value
         var_symbol = self.symtab.lookup(var_name)

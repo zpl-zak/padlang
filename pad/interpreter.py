@@ -35,13 +35,19 @@ class Interpreter(NodeVisitor):
     def visit_VarDecl(self, node):
         self.GLOBAL_MEMORY[node.var_node.value] = node.var_node
 
+        if node.val_node is not None:
+            self.GLOBAL_MEMORY[node.var_node.value] = self.visit(node.val_node)
+
+
+    def visit_VarDeclInline(self, node):
+        for decl in node.decls:
+            self.visit(decl)
+
     def visit_Type(self, node):
         # Do nothing
         pass
 
     def visit_Block(self, node):
-        #self.child = table = SymbolTableBuilder(self.symtab)
-
         for declaration in node.declarations:
             self.visit(declaration)
 
@@ -60,7 +66,6 @@ class Interpreter(NodeVisitor):
             raise Exception("Undefined method " + node.name.value)
 
         call = Interpreter(None, self)
-
         i = 0
 
         for value in node.args:
@@ -121,7 +126,6 @@ class Interpreter(NodeVisitor):
 
         if met is False:
             self.visit(alt)
-
 
     def visit_Assign(self, node):
         var_name = node.left.value
