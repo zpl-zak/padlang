@@ -1,5 +1,8 @@
 import unittest
 
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
+
 class LexerTestCase(unittest.TestCase):
     def makeLexer(self, text):
         from pad.lexer import Lexer
@@ -91,6 +94,29 @@ class InterpreterTestCase(unittest.TestCase):
                    BEGIN
                        a := %s
                    END.
+                """ % expr
+            )
+            interpreter.interpret()
+            globals = interpreter.GLOBAL_MEMORY
+            self.assertEqual(globals['a'], result)
+
+    def test_procedure_declaration(self):
+        for expr, result in (
+                ('42', 84),
+                ('2 * 4', 16),
+        ):
+            interpreter = self.makeInterpreter(
+                """PROGRAM Test;
+                VAR
+                    a : INTEGER;
+                PROCEDURE MultiplyTwo(x : INTEGER);
+                BEGIN
+                    a := 2 * x;
+                END;
+
+                BEGIN
+                    MultiplyTwo(%s);
+                END.
                 """ % expr
             )
             interpreter.interpret()

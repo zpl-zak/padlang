@@ -40,13 +40,14 @@ class VarSymbol(Symbol):
 
 
 class MethodSymbol(Symbol):
-    def __init__(self, name, decl, type_spec, type):
+    def __init__(self, name, syms, type_spec, type):
         super(MethodSymbol, self).__init__(name, type)
-        self.decl = decl
+        self.syms = syms
         self.type_spec = type_spec
 
     def __str__(self):
-        return '<METHOD {name}:{type}>'.format(name=self.name, type=self.type)
+        a = self.syms.debug_dump()
+        return '<METHOD {name}:{type} ({mem})>'.format(name=self.name, type=self.type, mem=a)
 
     __repr__ = __str__
 
@@ -83,6 +84,10 @@ class SymbolTable(object):
         print('Define: %s' % symbol)
         self.symbols[symbol.name] = symbol
 
+    def set(self, name, value):
+        print('Define: %s' % name)
+        self.symbols[name] = value
+
     def lookup(self, name):
         print('Lookup: %s' % name)
         symbol = self.symbols.get(name)
@@ -107,15 +112,15 @@ class SymbolTableBuilder(NodeVisitor):
         return s
 
     def visit_Block(self, node):
-        self.child = table = SymbolTableBuilder(self.symtab)
+        #self.child = table = SymbolTableBuilder(self.symtab)
 
         for declaration in node.declarations:
-            table.visit(declaration)
+            self.visit(declaration)
 
         for method in node.methods:
-            table.visit(method)
+            self.visit(method)
 
-        table.visit(node.compound_statement)
+        self.visit(node.compound_statement)
 
     def visit_Program(self, node):
         self.visit(node.block)
@@ -123,9 +128,16 @@ class SymbolTableBuilder(NodeVisitor):
     def visit_Method(self, node):
         self.child = table = SymbolTableBuilder(self.symtab)
 
-        table.visit(node.code)
         for decl in node.decl:
             table.visit(decl)
+
+        method = MethodSymbol(node.name, table, None, PROCEDURE)
+        self.symtab.define(method)
+
+        table.visit(node.code)
+
+    def visit_MethodCall(self, node):
+        pass
 
     def visit_BinOp(self, node):
         self.visit(node.left)

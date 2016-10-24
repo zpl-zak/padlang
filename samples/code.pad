@@ -23,7 +23,7 @@ $=
 
 PROCEDURE Test(arg0 : INTEGER);
 {
-
+    a := arg0;
 };
 
 { $ This is the entry point of our program $
@@ -64,6 +64,8 @@ PROCEDURE Test(arg0 : INTEGER);
             y := 0;
         };
     };
+
+    Test(42);
 }.  $ Program's entry point ends with DOT at the end of the scope. Pascal-style. $
 
 $=

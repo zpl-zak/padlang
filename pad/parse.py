@@ -57,6 +57,12 @@ class Method(AST):
         self.type = method_type
 
 
+class MethodCall(AST):
+    def __init__(self, name, args):
+        self.name = name
+        self.args = args
+
+
 class Assign(AST):
     def __init__(self, left, op, right):
         self.left = left
@@ -173,7 +179,7 @@ class Parser(object):
         procedure   : variable (LPAREN declarations RPAREN) SEMI block
         """
         self.eat(PROCEDURE)
-        name = self.variable()
+        name = self.variable().value
         decl = []
 
         if self.current_token.type == LPAREN:
@@ -205,6 +211,7 @@ class Parser(object):
         while self.current_token.type == ID:
             var_decl = self.variable_declaration()
             declarations.extend(var_decl)
+           # print(declarations)
 
             if self.current_token.type == SEMI:
                 self.eat(SEMI)
@@ -291,11 +298,42 @@ class Parser(object):
             node = self.empty()
         return node
 
+    def call_statement(self, name):
+        """
+        call_statement  : variable LPAREN arguments RPAREN
+        """
+        self.eat(LPAREN)
+        args = self.arguments()
+        self.eat(RPAREN)
+        node = MethodCall(name, args)
+        return node
+
+    def arguments(self):
+        """
+        arguments   : (factor COMMA)+
+        """
+        if self.current_token.type == RPAREN:
+            return None
+
+        arg = self.expr()
+        args = [arg]
+
+        while self.current_token.type == COMMA:
+            self.eat(COMMA)
+            args.append(self.expr())
+
+        return args
+
     def assignment_statement(self):
         """
-        assignment_statement : variable ASSIGN expr
+        assignment_statement    : variable ASSIGN expr
+                                | call_statement
         """
         left = self.variable()
+
+        if self.current_token.type == LPAREN:
+            return self.call_statement(left)
+
         token = self.current_token
         self.eat(ASSIGN)
         right = self.expr()

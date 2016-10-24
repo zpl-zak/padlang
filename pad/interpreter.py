@@ -20,22 +20,17 @@
 from collections import OrderedDict
 
 from pad.ltypes import *
-
 from pad.walker import NodeVisitor
 
 
 class Interpreter(NodeVisitor):
-    def __init__(self, tree):
+    def __init__(self, tree, parent=None):
         self.tree = tree
         self.GLOBAL_MEMORY = OrderedDict()
+        self.parent = parent
 
     def visit_Program(self, node):
         self.visit(node.block)
-
-    def visit_Block(self, node):
-        for declaration in node.declarations:
-            self.visit(declaration)
-        self.visit(node.compound_statement)
 
     def visit_VarDecl(self, node):
         # Do nothing
@@ -45,8 +40,41 @@ class Interpreter(NodeVisitor):
         # Do nothing
         pass
 
+    def visit_Block(self, node):
+        #self.child = table = SymbolTableBuilder(self.symtab)
+
+        for declaration in node.declarations:
+            self.visit(declaration)
+
+        for method in node.methods:
+
+            self.visit(method)
+
+        self.visit(node.compound_statement)
+
+    def visit_Program(self, node):
+        self.visit(node.block)
+
+    def visit_MethodCall(self, node):
+        method = self.GLOBAL_MEMORY.get(node.name.value)
+
+        if method is None:
+            raise Exception("Undefined method " + node.name.value)
+
+        call = Interpreter(method.code, self)
+
+        i = 0
+
+        for value in node.args:
+            call.GLOBAL_MEMORY[method.decl[i].var_node.value] = value
+            i += 1
+
+        print(method.code)
+        call.visit(method.code)
+
+
     def visit_Method(self, node):
-        pass
+        self.GLOBAL_MEMORY[node.name] = node
 
     def visit_BinOp(self, node):
         if node.op.type == PLUS:
@@ -97,12 +125,29 @@ class Interpreter(NodeVisitor):
     def visit_Assign(self, node):
         var_name = node.left.value
         var_value = self.visit(node.right)
-        self.GLOBAL_MEMORY[var_name] = var_value
+        symbol = self.GLOBAL_MEMORY.get(var_name)
+        env = self
+
+        while symbol is None and env.parent is not None:
+            env = env.parent
+            symbol = env.GLOBAL_MEMORY.get(var_name)
+
+        env.GLOBAL_MEMORY[var_name] = var_value
+
 
     def visit_Var(self, node):
         var_name = node.value
-        var_value = self.GLOBAL_MEMORY.get(var_name)
-        return var_value
+        symbol = self.GLOBAL_MEMORY.get(var_name)
+        env = self.parent
+
+        if symbol is None and env.parent is not None:
+            env = env.parent
+            symbol = env.parent.GLOBAL_MEMORY.get(var_name)
+
+        try:
+            return self.visit(symbol)
+        except Exception:
+            return symbol
 
     def visit_Condition(self, node):
         left = node.left
