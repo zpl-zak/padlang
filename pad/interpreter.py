@@ -33,8 +33,7 @@ class Interpreter(NodeVisitor):
         self.visit(node.block)
 
     def visit_VarDecl(self, node):
-        # Do nothing
-        pass
+        self.GLOBAL_MEMORY[node.var_node.value] = node.var_node
 
     def visit_Type(self, node):
         # Do nothing
@@ -47,7 +46,6 @@ class Interpreter(NodeVisitor):
             self.visit(declaration)
 
         for method in node.methods:
-
             self.visit(method)
 
         return self.visit(node.compound_statement)
@@ -61,7 +59,7 @@ class Interpreter(NodeVisitor):
         if method is None:
             raise Exception("Undefined method " + node.name.value)
 
-        call = Interpreter(method.code, self)
+        call = Interpreter(None, self)
 
         i = 0
 
@@ -141,9 +139,9 @@ class Interpreter(NodeVisitor):
     def visit_Var(self, node):
         var_name = node.value
         symbol = self.GLOBAL_MEMORY.get(var_name)
-        env = self.parent
+        env = self
 
-        if symbol is None and env.parent is not None:
+        while symbol is None and env.parent is not None:
             env = env.parent
             symbol = env.parent.GLOBAL_MEMORY.get(var_name)
 

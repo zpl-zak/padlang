@@ -27,8 +27,11 @@ PROCEDURE Test(arg0 : INTEGER);
 };
 
 FUNCTION MultiplyTwo(x : INTEGER);
+VAR
+    t : INTEGER;
 {
-    RET 2 * x
+    t := 2*x;
+    RET t
 };
 
 { $ This is the entry point of our program $
@@ -69,7 +72,7 @@ FUNCTION MultiplyTwo(x : INTEGER);
             y := 0;
         };
     };
-    a := MultiplyTwo(2) + MultiplyTwo(4) * (MultiplyTwo(4) + MultiplyTwo(2));
+    a := MultiplyTwo(2);
 }.  $ Program's entry point ends with DOT at the end of the scope. Pascal-style. $
 
 $=
