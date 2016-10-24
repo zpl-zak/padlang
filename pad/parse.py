@@ -166,14 +166,14 @@ class Parser(object):
         return program_node
 
     def block(self):
-        """block : declarations (procedure | function)+ compound_statement"""
+        """block : declarations (procedure | function)* compound_statement"""
         declaration_nodes = self.declarations()
         methods = []
 
-        while self.current_token.type in (PROCEDURE, FUNCTION):
-            if self.current_token.type == PROCEDURE:
+        while self.current_token.type in (PROCEDURE, FUNCTION, FN, SUB):
+            if self.current_token.type in (PROCEDURE, SUB):
                 methods.append(self.procedure())
-            elif self.current_token.type == FUNCTION:
+            elif self.current_token.type in (FUNCTION, FN):
                 methods.append(self.function())
 
         compound_statement_node = self.compound_statement()
@@ -184,7 +184,7 @@ class Parser(object):
         """
         procedure   : variable (LPAREN declarations RPAREN) SEMI block
         """
-        self.eat(PROCEDURE)
+        self.eat(PROCEDURE if self.current_token.type == PROCEDURE else SUB)
         name = self.variable().value
         decl = []
 
@@ -206,7 +206,7 @@ class Parser(object):
         """
         function    : variable (LPAREN declarations RPAREN) SEMI block
         """
-        self.eat(FUNCTION)
+        self.eat(FUNCTION if self.current_token.type == FUNCTION else FN)
         name = self.variable().value
         decl = []
 

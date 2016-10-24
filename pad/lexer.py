@@ -55,8 +55,10 @@ RESERVED_KEYWORDS = {
     'ELSE': Token('ELSE', 'ELSE'),
     'CASE': Token('CASE', 'CASE'),
     'OF': Token('OF', 'OF'),
+    'SUB': Token('SUB', 'SUB'),
     'PROCEDURE': Token('PROCEDURE', 'PROCEDURE'),
     'FUNCTION': Token('FUNCTION', 'FUNCTION'),
+    'FN': Token('FN', 'FN'),
     'RET': Token('RET', 'RET'),
     'END': Token('END', 'END'),
 }

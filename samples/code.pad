@@ -21,12 +21,12 @@ $=
    y      : REAL;
    odd    : INTEGER;
 
-PROCEDURE Test(arg0 : INTEGER);
+SUB Test(arg0 : INTEGER); $ SUB's alternative: PROCEDURE $
 {
     a := arg0;
 };
 
-FUNCTION MultiplyTwo(x : INTEGER);
+FN MultiplyTwo(x : INTEGER); $ FN's alternative: FUNCTION $
 VAR
     t : INTEGER;
 {
