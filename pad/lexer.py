@@ -57,6 +57,7 @@ RESERVED_KEYWORDS = {
     'OF': Token('OF', 'OF'),
     'PROCEDURE': Token('PROCEDURE', 'PROCEDURE'),
     'FUNCTION': Token('FUNCTION', 'FUNCTION'),
+    'RET': Token('RET', 'RET'),
     'END': Token('END', 'END'),
 }
 

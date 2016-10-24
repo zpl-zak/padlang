@@ -50,7 +50,7 @@ class Interpreter(NodeVisitor):
 
             self.visit(method)
 
-        self.visit(node.compound_statement)
+        return self.visit(node.compound_statement)
 
     def visit_Program(self, node):
         self.visit(node.block)
@@ -69,9 +69,10 @@ class Interpreter(NodeVisitor):
             call.GLOBAL_MEMORY[method.decl[i].var_node.value] = value
             i += 1
 
-        print(method.code)
-        call.visit(method.code)
+        result = call.visit(method.code)
 
+        if method.type == FUNCTION:
+            return result
 
     def visit_Method(self, node):
         self.GLOBAL_MEMORY[node.name] = node
@@ -101,8 +102,10 @@ class Interpreter(NodeVisitor):
             return -self.visit(node.expr)
 
     def visit_Compound(self, node):
-        for child in node.children:
+        for child in node.children[:-1]:
             self.visit(child)
+
+        return self.visit(node.children[-1])
 
     def visit_CaseSwitch(self, node):
         test = self.visit(node.test)

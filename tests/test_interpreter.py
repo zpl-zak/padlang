@@ -123,6 +123,29 @@ class InterpreterTestCase(unittest.TestCase):
             globals = interpreter.GLOBAL_MEMORY
             self.assertEqual(globals['a'], result)
 
+    def test_function_declaration(self):
+        for expr, result in (
+                ('MultiplyTwo(2);', 4),
+                ('MultiplyTwo(2) + MultiplyTwo(4) * (MultiplyTwo(4) + MultiplyTwo(2));', 100),
+        ):
+            interpreter = self.makeInterpreter(
+                """PROGRAM Test;
+                VAR
+                    a : INTEGER;
+                FUNCTION MultiplyTwo(x : INTEGER);
+                BEGIN
+                    RET 2 * x;
+                END;
+
+                BEGIN
+                    a := %s
+                END.
+                """ % expr
+            )
+            interpreter.interpret()
+            globals = interpreter.GLOBAL_MEMORY
+            self.assertEqual(globals['a'], result)
+
     def test_expression_invalid_syntax_01(self):
         with self.assertRaises(Exception):
             self.makeInterpreter(

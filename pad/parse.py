@@ -168,7 +168,7 @@ class Parser(object):
             if self.current_token.type == PROCEDURE:
                 methods.append(self.procedure())
             elif self.current_token.type == FUNCTION:
-                methods.append(self.procedure())
+                methods.append(self.function())
 
         compound_statement_node = self.compound_statement()
         node = Block(declaration_nodes, methods, compound_statement_node)
@@ -197,7 +197,26 @@ class Parser(object):
         return node
 
     def function(self):
-        pass
+        """
+        function    : variable (LPAREN declarations RPAREN) SEMI block
+        """
+        self.eat(FUNCTION)
+        name = self.variable().value
+        decl = []
+
+        if self.current_token.type == LPAREN:
+            self.eat(LPAREN)
+            decl = self.declarations()
+            self.eat(RPAREN)
+
+        self.eat(SEMI)
+        block = self.block()
+        node = Method(name, decl, block, FUNCTION)
+
+        if self.current_token.type == SEMI:
+            self.eat(SEMI)
+
+        return node
 
     def declarations(self):
         """declarations : VAR (variable_declaration SEMI)+
@@ -284,6 +303,7 @@ class Parser(object):
                   | assignment_statement
                   | condition_statement
                   | case_statement
+                  | expr
                   | empty
         """
         if self.current_token.type == BEGIN:
@@ -292,6 +312,9 @@ class Parser(object):
             node = self.assignment_statement()
         elif self.current_token.type == IF:
             node = self.condition_statement()
+        elif self.current_token.type == RET:
+            self.eat(RET)
+            node = self.expr()
         elif self.current_token.type == CASE:
             node = self.case_statement()
         else:
@@ -326,7 +349,7 @@ class Parser(object):
 
     def assignment_statement(self):
         """
-        assignment_statement    : variable ASSIGN expr
+        assignment_statement    : variable ASSIGN (expr | call_statement)
                                 | call_statement
         """
         left = self.variable()
@@ -337,6 +360,7 @@ class Parser(object):
         token = self.current_token
         self.eat(ASSIGN)
         right = self.expr()
+
         node = Assign(left, token, right)
         return node
 
@@ -466,6 +490,7 @@ class Parser(object):
                   | REAL_CONST
                   | LPAREN expr RPAREN
                   | variable
+                  | call_statement
         """
         token = self.current_token
         if token.type == PLUS:
@@ -489,6 +514,8 @@ class Parser(object):
             return node
         else:
             node = self.variable()
+            if self.current_token.type == LPAREN:
+                return self.call_statement(node)
             return node
 
     def parse(self):
