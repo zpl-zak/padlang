@@ -155,7 +155,7 @@ class Lexer(object):
                 self.advance()
                 return Token('END', '}')
 
-            if self.current_char.isalpha():
+            if self.current_char.isalpha() or self.current_char == '_':
                 return self._id()
 
             if self.current_char.isdigit():

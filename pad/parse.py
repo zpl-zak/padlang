@@ -185,7 +185,7 @@ class Parser(object):
 
     def procedure(self):
         """
-        procedure   : variable (LPAREN declarations RPAREN) SEMI block
+        procedure   : variable (LPAREN declarations RPAREN)* SEMI block
         """
         self.eat(PROCEDURE if self.current_token.type == PROCEDURE else SUB)
         name = self.variable().value
@@ -207,7 +207,7 @@ class Parser(object):
 
     def function(self):
         """
-        function    : variable (LPAREN declarations RPAREN) SEMI block
+        function    : variable (LPAREN declarations RPAREN)* SEMI block
         """
         self.eat(FUNCTION if self.current_token.type == FUNCTION else FN)
         name = self.variable().value

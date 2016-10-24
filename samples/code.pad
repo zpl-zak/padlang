@@ -21,9 +21,32 @@ $=
    y      : REAL;
    odd    : INTEGER;
 
-SUB Test(arg0 : INTEGER); $ SUB's alternative: PROCEDURE $
+SUB Test; $ SUB's alternative: PROCEDURE $
+    FN NestedTest;
+    {
+        RET 42;
+    };
 {
-    a := arg0;
+    a := NestedTest();
+};
+
+$=
+    Factorial (ex. 6! = 720)
+    Recursive function to prove support of recursive call support and
+    proof of having custom environment per each function's call. (ie. x won't get replaced by callee)
+    Example:
+        a := Factorial(6);
+=$
+FN Factorial(x : INTEGER);
+{
+    VAR r: INTEGER := 0;
+
+    IF x = 0 {
+        r := 1;
+    } ELSE {
+        r := x * Factorial(x-1);
+    };
+    RET r;
 };
 
 FN MultiplyTwo(x : INTEGER); $ FN's alternative: FUNCTION $
@@ -75,6 +98,11 @@ VAR
         };
     };
     a := MultiplyTwo(2);
+
+    Test();
+
+    f := Factorial(6);
+    $ NestedTest(); -- this will cause "undefined method" exception, since NestedTest is nested function from Test method. $
 }.  $ Program's entry point ends with DOT at the end of the scope. Pascal-style. $
 
 $=

@@ -59,21 +59,24 @@ class Interpreter(NodeVisitor):
 
         return self.visit(node.compound_statement)
 
-    def visit_Program(self, node):
-        self.visit(node.block)
-
     def visit_MethodCall(self, node):
         method = self.GLOBAL_MEMORY.get(node.name.value)
+        env = self
+
+        while method is None and env is not None:
+            method = env.GLOBAL_MEMORY.get(node.name.value)
+            env = env.parent
 
         if method is None:
             raise Exception("Undefined method " + node.name.value)
 
         call = Interpreter(None, self)
-        i = 0
 
-        for value in node.args:
-            call.GLOBAL_MEMORY[method.decl[i].var_node.value] = value
-            i += 1
+        if node.args is not None:
+            i = 0
+            for value in node.args:
+                call.GLOBAL_MEMORY[method.decl[i].var_node.value] = self.visit(value)
+                i += 1
 
         result = call.visit(method.code)
 
@@ -136,9 +139,11 @@ class Interpreter(NodeVisitor):
         symbol = self.GLOBAL_MEMORY.get(var_name)
         env = self
 
-        while symbol is None and env.parent is not None:
-            env = env.parent
+        while symbol is None and env is not None:
             symbol = env.GLOBAL_MEMORY.get(var_name)
+
+            if symbol is None:
+                env = env.parent
 
         env.GLOBAL_MEMORY[var_name] = var_value
 
@@ -148,14 +153,17 @@ class Interpreter(NodeVisitor):
         symbol = self.GLOBAL_MEMORY.get(var_name)
         env = self
 
-        while symbol is None and env.parent is not None:
+        while symbol is None and env is not None:
+            symbol = env.GLOBAL_MEMORY.get(var_name)
             env = env.parent
-            symbol = env.parent.GLOBAL_MEMORY.get(var_name)
+
+        res = symbol
 
         try:
-            return self.visit(symbol)
+            while True:
+                res = self.visit(res)
         except Exception:
-            return symbol
+            return res
 
     def visit_Condition(self, node):
         left = node.left
