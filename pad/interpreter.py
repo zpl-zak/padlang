@@ -24,6 +24,9 @@ from pad.walker import NodeVisitor
 
 
 class Interpreter(NodeVisitor):
+    """
+    Interprets our AST by visiting all nodes of tree.
+    """
     def __init__(self, tree, parent=None):
         self.tree = tree
         self.GLOBAL_MEMORY = OrderedDict()

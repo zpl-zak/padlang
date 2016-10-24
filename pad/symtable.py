@@ -99,6 +99,9 @@ class SymbolTable(object):
 
 
 class SymbolTableBuilder(NodeVisitor):
+    """
+    Takes an ADT (Abstract Data Tree) and checks all nodes for undeclared variables usage, type-checking...
+    """
     def __init__(self, parent=None):
         self.symtab = SymbolTable(parent)
         self.child = None

@@ -48,7 +48,8 @@ VAR
     }; $ Literally every scope HAS to end with SEMI-COLON (';'), this is different from C language! $
     $ Anonymous scope. $
     {
-        var inlinevar, f, g, h : INTEGER := 42;
+        $ Unlike in Pascal, you can declare (and define) your variables inside of scope. $
+        var inline_var, f, g, h : INTEGER := 42;
 
         a := a + a;
         $ Here we can evaluate (3 % 2) inline and compare it with right-hand side. $

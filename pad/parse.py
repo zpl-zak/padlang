@@ -136,6 +136,9 @@ class Type(AST):
 
 
 class Parser(object):
+    """
+    Takes sequence of tokens from Lexical Analyzer (lexer) and constructs an AST (Abstract Syntax Tree).
+    """
     def __init__(self, lexer):
         self.lexer = lexer
         # set current token to the first token taken from the input
