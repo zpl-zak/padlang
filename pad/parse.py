@@ -105,6 +105,12 @@ class Var(AST):
         self.value = token.value
 
 
+class VarRef(AST):
+    def __init__(self, token):
+        self.token = token
+        self.value = token.value
+
+
 class NoOp(AST):
     pass
 
@@ -469,6 +475,7 @@ class Parser(object):
         variable : ID
         """
         node = Var(self.current_token)
+
         self.eat(ID)
         return node
 
@@ -510,6 +517,7 @@ class Parser(object):
                   | REAL_CONST
                   | LPAREN expr RPAREN
                   | variable
+                  | reference
                   | call_statement
         """
         token = self.current_token
@@ -532,11 +540,22 @@ class Parser(object):
             node = self.expr()
             self.eat(RPAREN)
             return node
+        elif token.type == REF:
+            node = self.reference()
+            return node
         else:
             node = self.variable()
             if self.current_token.type == LPAREN:
                 return self.call_statement(node)
             return node
+
+    def reference(self):
+        """
+        reference   : REF
+        """
+        node = VarRef(Var(self.current_token))
+        self.eat(REF)
+        return node
 
     def parse(self):
         node = self.program()

@@ -12,7 +12,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='padlang',
-    version='1.0.7',
+    version='1.0.8',
     description='PADLang is yet another interpreted language now with focus on Pascal/C-like syntax',
     long_description=long_description,
     url='https://github.com/zaklaus/padlang',

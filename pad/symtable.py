@@ -203,3 +203,7 @@ class SymbolTableBuilder(NodeVisitor):
         if var_symbol is None:
             raise NameError(repr(var_name))
 
+
+    def visit_VarRef(self, node):
+        var_name = node.value
+        self.visit(var_name)

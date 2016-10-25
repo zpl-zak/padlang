@@ -41,7 +41,6 @@ class Interpreter(NodeVisitor):
         if node.val_node is not None:
             self.GLOBAL_MEMORY[node.var_node.value] = self.visit(node.val_node)
 
-
     def visit_VarDeclInline(self, node):
         for decl in node.decls:
             self.visit(decl)
@@ -135,7 +134,31 @@ class Interpreter(NodeVisitor):
 
     def visit_Assign(self, node):
         var_name = node.left.value
+        print(var_name)
         var_value = self.visit(node.right)
+
+        var_left_value = self.get_var(node.left.value)
+
+        import pad.parse
+        if type(var_left_value) == pad.parse.VarRef:
+            var_name = var_left_value.value
+
+        self.set_var(var_name, var_value)
+
+    def get_var(self, node):
+        var_name = node
+        symbol = self.GLOBAL_MEMORY.get(var_name)
+        env = self
+
+        while symbol is None and env is not None:
+            symbol = env.GLOBAL_MEMORY.get(var_name)
+
+        res = env.GLOBAL_MEMORY[var_name]
+        return res
+
+    def set_var(self, node, value):
+        var_name = node
+        var_value = value
         symbol = self.GLOBAL_MEMORY.get(var_name)
         env = self
 
@@ -147,23 +170,13 @@ class Interpreter(NodeVisitor):
 
         env.GLOBAL_MEMORY[var_name] = var_value
 
-
     def visit_Var(self, node):
         var_name = node.value
-        symbol = self.GLOBAL_MEMORY.get(var_name)
-        env = self
+        res = self.get_var(var_name)
+        return res
 
-        while symbol is None and env is not None:
-            symbol = env.GLOBAL_MEMORY.get(var_name)
-            env = env.parent
-
-        res = symbol
-
-        try:
-            while True:
-                res = self.visit(res)
-        except Exception:
-            return res
+    def visit_VarRef(self, node):
+        return node
 
     def visit_Condition(self, node):
         left = node.left
