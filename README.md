@@ -12,7 +12,6 @@ Yet another language written in Python.
 * Case switch
 * Basic variable existence checks when using variables.
 * Variable references (ex. you can pass variable reference to a procedure, which can then modify it.)
-* Supports basic Pascal-esque programs. (This won't be true soon.)
 
 ## How to use
 * Either clone the repo or `pip install padlang`, see *samples* for an example of how to use the package.
