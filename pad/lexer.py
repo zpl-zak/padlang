@@ -182,11 +182,16 @@ class Lexer(object):
             if self.current_char == ':' and self.peek() == '=':
                 self.advance()
                 self.advance()
-                return Token(ASSIGN, ':=')
+                return Token(ASSIGN, '=')
+
+            if self.current_char == '=' and self.peek() == '=':
+                self.advance()
+                self.advance()
+                return Token(EQUALS, '==')
 
             if self.current_char == '=':
                 self.advance()
-                return Token(EQUALS, '=')
+                return Token(ASSIGN, ':=')
 
             if self.current_char == '<' and self.peek() == '=':
                 self.advance()

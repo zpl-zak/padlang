@@ -16,7 +16,7 @@ VAR
 $=
   Here we declare global variables.
 =$
-   number := 89;
+   number = 89;
    a, b;
    y;
    odd;
@@ -32,7 +32,7 @@ SUB Test(&x); $ SUB's alternative: PROCEDURE $
         RET 42;
     };
 {
-    x := NestedTest() * x / (x + 5);
+    x = NestedTest() * x / (x + 5);
 };
 
 $=
@@ -40,16 +40,16 @@ $=
     Recursive function to prove support of recursive calls and
     proof of having custom environment per each function's call. (ie. x won't get replaced by callee)
     Example:
-        a := Factorial(6);
+        a = Factorial(6);
 =$
 FN Factorial(x);
 {
-    VAR r := 0;
+    VAR r = 0;
 
-    IF x = 0 {
-        r := 1;
+    IF x == 0 {
+        r = 1;
     } ELSE {
-        r := x * Factorial(x-1);
+        r = x * Factorial(x-1);
     };
     RET r;
 };
@@ -58,61 +58,61 @@ FN MultiplyTwo(x); $ FN's alternative: FUNCTION $
 VAR
     t;
 {
-    t := 2*x;
+    t = 2*x;
     RET t
 };
 $=
     Reserved keywords are case-insensitive. (ex. ELSE yields the same as ElSe).
 =$
 { $ This is the entry point of our program $
-    a := number ;
-    b := 10 * a + 10 * number DIV 4;
-    y := 20 / 7 + 3.14;
-    b := 30 / 2 / b * (a + 25 DIV 2);
+    a = number ;
+    b = 10 * a + 10 * number DIV 4;
+    y = 20 / 7 + 3.14;
+    b = 30 / 2 / b * (a + 25 DIV 2);
     IF a > 2 { $ Simple IF-ELSE condition statement. $
-        a := 3;
-        y := 2;
+        a = 3;
+        y = 2;
     } ELSE {
-        a := 5;
-        y := 35;
+        a = 5;
+        y = 35;
     }; $ Literally every scope HAS to end with SEMI-COLON (';'), this is different from C language! $
     $ Anonymous scope. $
     {
         $ Unlike in Pascal, we can declare (and define) our variables inside of scope. $
-        var inline_var, f, g, h := 42;
+        var inline_var, f, g, h = 42;
 
-        a := a + a;
+        a = a + a;
         $ Here we can evaluate (3 % 2) inline and compare it with right-hand side. $
-        IF (3 MOD 2) = 0 THEN $= OPTIONAL: THEN keyword. =$ {
-            odd := 1;
-        } ELSE IF (2 + 2) = 3 {
-            odd := 0;
+        IF (3 MOD 2) == 0 THEN $= OPTIONAL: THEN keyword. =$ {
+            odd = 1;
+        } ELSE IF (2 + 2) == 3 {
+            odd = 0;
         } ELSE {
-            odd := 3;
+            odd = 3;
         };
     };
-    a := 6;
+    a = 6;
     CASE a {
         2,6 : {
-            y := 4;
+            y = 4;
         };
         3 : {
-            y := 5;
+            y = 5;
         };
-        (8-2) : y := 66;
+        (8-2) : y = 66;
         ELSE {
-            y := 0;
+            y = 0;
         };
     };
-    a := MultiplyTwo(2);
+    a = MultiplyTwo(2);
 
     $ Declare string literal and print its content with some random number converted to string. $
-    var stringTest := "hello world";
+    var stringTest = "hello world";
     print(stringTest + " " + str(42) + " " + str(Factorial(8)));
 
     Test(&a); $ global variable 'a' will contain value '18.6~' $
 
-    $f := Factorial(6);$
+    $f = Factorial(6);$
     $ NestedTest(); -- this will cause "undefined method" exception, since NestedTest is nested function from Test method. $
 }.  $ Program's entry point ends with DOT at the end of the scope. Pascal-style. $
 

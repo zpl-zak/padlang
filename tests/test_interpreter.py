@@ -24,7 +24,7 @@ class LexerTestCase(unittest.TestCase):
             ('-', MINUS, '-'),
             ('(', LPAREN, '('),
             (')', RPAREN, ')'),
-            (':=', ASSIGN, ':='),
+            ('=', ASSIGN, ':='),
             ('.', DOT, '.'),
             ('number', ID, 'number'),
             (';', SEMI, ';'),
@@ -145,6 +145,30 @@ class InterpreterTestCase(unittest.TestCase):
 
                 BEGIN
                     MultiplyTwo(%s);
+                END.
+                """ % expr
+            )
+            interpreter.interpret()
+            globals = interpreter.GLOBAL_MEMORY
+            self.assertEqual(globals['a'], result)
+
+    def test_condition(self):
+        for expr, result in (
+                ('0', 1),
+                ('2 * 2 + 1', 1),
+                ('100 / 10', 0),
+        ):
+            interpreter = self.makeInterpreter(
+                """PROGRAM Test;
+                VAR
+                    a, b;
+                BEGIN
+                    b = 5;
+                    IF b >= (%s) {
+                        a = 1;
+                    } ELSE {
+                        a = 0;
+                    };
                 END.
                 """ % expr
             )
