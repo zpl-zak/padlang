@@ -18,9 +18,8 @@
 ###############################################################################
 
 import sys, os
-sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 
-from pad.symtable import SymbolTableBuilder
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
 
 from pad.interpreter import Interpreter
 from pad.parse import Parser
@@ -35,16 +34,10 @@ def main():
     lexer = Lexer(text)
     parser = Parser(lexer)
     tree = parser.parse()
-    symtab_builder = SymbolTableBuilder()
-    symtab_builder.visit(tree)
-    print('')
-    print('Symbol Table contents:')
-    print(symtab_builder.debug_dump())
 
     interpreter = Interpreter(tree)
     result = interpreter.interpret()
 
-    print('')
     print('Run-time GLOBAL_MEMORY contents:')
     for k, v in sorted(interpreter.GLOBAL_MEMORY.items()):
         print('%s = %s' % (k, v))

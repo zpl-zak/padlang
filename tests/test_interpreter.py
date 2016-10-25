@@ -42,13 +42,10 @@ class InterpreterTestCase(unittest.TestCase):
     def makeInterpreter(self, text):
         from pad.interpreter import Interpreter
         from pad.lexer import Lexer
-        from pad.symtable import SymbolTableBuilder
         from pad.parse import Parser
         lexer = Lexer(text)
         parser = Parser(lexer)
         tree = parser.parse()
-        symtab_builder = SymbolTableBuilder()
-        symtab_builder.visit(tree)
 
 
         interpreter = Interpreter(tree)
