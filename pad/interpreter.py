@@ -160,7 +160,8 @@ class Interpreter(NodeVisitor):
         except AttributeError:
             self.error_notfound(var_name)
 
-    def error_notfound(self, name):
+    @staticmethod
+    def error_notfound(name):
         raise Exception("Unknown variable " + name)
 
     def set_var(self, node, value):

@@ -21,13 +21,18 @@ $=
    y      : REAL;
    odd    : INTEGER;
 
-SUB Test(x : INTEGER); $ SUB's alternative: PROCEDURE $
-    FN NestedTest;
+SUB Test(&x : INTEGER); $ SUB's alternative: PROCEDURE $
+    $=
+     '&' prefix says this is a reference argument, thus. caller should provide referenced variable.
+     Since there is no semantic checking yet, x can be anything, therefore it is heavily prone to undefined behavior.
+     We must make sure we know when to pass reference, also we need to always prefix our argument with '&'.
+    =$
+    FN NestedTest; $ This function is not available outside of Test's scope. $
     {
         RET 42;
     };
 {
-    x := NestedTest() * x;
+    x := NestedTest() * x / (x + 5);
 };
 
 $=
@@ -56,7 +61,9 @@ VAR
     t := 2*x;
     RET t
 };
-
+$=
+    Reserved keywords are case-insensitive. (ex. ELSE yields the same as ElSe).
+=$
 { $ This is the entry point of our program $
     a := number ;
     b := 10 * a + 10 * number DIV 4;
@@ -71,7 +78,7 @@ VAR
     }; $ Literally every scope HAS to end with SEMI-COLON (';'), this is different from C language! $
     $ Anonymous scope. $
     {
-        $ Unlike in Pascal, you can declare (and define) your variables inside of scope. $
+        $ Unlike in Pascal, we can declare (and define) our variables inside of scope. $
         var inline_var, f, g, h : INTEGER := 42;
 
         a := a + a;
@@ -99,7 +106,7 @@ VAR
     };
     a := MultiplyTwo(2);
 
-    Test(&a);
+    Test(&a); $ global variable 'a' will contain value '18.6~' $
 
     $f := Factorial(6);$
     $ NestedTest(); -- this will cause "undefined method" exception, since NestedTest is nested function from Test method. $
@@ -107,6 +114,6 @@ VAR
 
 $=
     NOTE:
-        Instead of using { and }; braces, you can use Pascal's BEGIN and END; keyword alternatives.
+        Instead of using { and }; braces, we can use Pascal's BEGIN and END; keyword alternatives.
         These are here to support basic Pascal programs.
 =$

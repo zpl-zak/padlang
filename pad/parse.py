@@ -19,6 +19,7 @@
 
 from pad.ltypes import *
 
+
 class AST(object):
     pass
 
@@ -242,10 +243,9 @@ class Parser(object):
         if self.current_token.type == VAR:
             self.eat(VAR)
 
-        while self.current_token.type == ID:
+        while self.current_token.type in (ID, REF):
             var_decl = self.variable_declaration()
             declarations.extend(var_decl)
-           # print(declarations)
 
             if self.current_token.type == SEMI:
                 self.eat(SEMI)
@@ -255,7 +255,7 @@ class Parser(object):
     def variable_declaration(self):
         """variable_declaration : ID (COMMA ID)* COLON type_spec (ASSIGN expr)*"""
         var_nodes = [Var(self.current_token)]  # first ID
-        self.eat(ID)
+        self.eat(self.current_token.type)
 
         while self.current_token.type == COMMA:
             self.eat(COMMA)
