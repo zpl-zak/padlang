@@ -4,3 +4,8 @@ class Print(object):
 
     def call(self, args):
         print(args[0])
+
+
+class Input(object):
+    def call(self, args):
+        return input(args)

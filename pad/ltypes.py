@@ -21,6 +21,7 @@
 # there is no more input left for lexical analysis
 INTEGER = 'INTEGER'
 REAL = 'REAL'
+STRING = 'STRING'
 INTEGER_CONST = 'INTEGER_CONST'
 REAL_CONST = 'REAL_CONST'
 PLUS = 'PLUS'

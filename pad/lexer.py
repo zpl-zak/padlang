@@ -120,7 +120,7 @@ class Lexer(object):
 
         return token
 
-    def _id(self, ptr=False):
+    def _id(self):
         """Handle identifiers and reserved keywords"""
         result = ''
         while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ('_', '&')):
@@ -131,6 +131,17 @@ class Lexer(object):
             token = Token(REF, result[1:])
         else:
             token = RESERVED_KEYWORDS.get(result.upper(), Token(ID, result))
+        return token
+
+    def string(self):
+        result = ''
+
+        while self.current_char is not '"':
+            result += self.current_char
+            self.advance()
+
+        self.advance()  # skip "
+        token = Token(STRING, result)
         return token
 
     def get_next_token(self):
@@ -149,6 +160,10 @@ class Lexer(object):
                 self.advance()
                 self.skip_comment()
                 continue
+
+            if self.current_char == '"':
+                self.advance()
+                return self.string()
 
             if self.current_char == '{':
                 self.advance()

@@ -130,9 +130,8 @@ class Block(AST):
 
 
 class VarDecl(AST):
-    def __init__(self, var_node, type_node, val_node=None):
+    def __init__(self, var_node, val_node=None):
         self.var_node = var_node
-        self.type_node = type_node
         self.val_node = val_node
 
 
@@ -141,6 +140,10 @@ class Type(AST):
         self.token = token
         self.value = token.value
 
+
+class String(AST):
+    def __init__(self, text):
+        self.text = text
 
 class Parser(object):
     """
@@ -253,7 +256,7 @@ class Parser(object):
         return declarations
 
     def variable_declaration(self):
-        """variable_declaration : ID (COMMA ID)* COLON type_spec (ASSIGN expr)*"""
+        """variable_declaration : ID (COMMA ID)* (ASSIGN expr)*"""
         var_nodes = [Var(self.current_token)]  # first ID
         self.eat(self.current_token.type)
 
@@ -262,9 +265,6 @@ class Parser(object):
             var_nodes.append(Var(self.current_token))
             self.eat(ID)
 
-        self.eat(COLON)
-
-        type_node = self.type_spec()
         value = None
 
         if self.current_token.type == ASSIGN:
@@ -272,7 +272,7 @@ class Parser(object):
             value = self.expr()
 
         var_declarations = [
-            VarDecl(var_node, type_node, value)
+            VarDecl(var_node, value)
             for var_node in var_nodes
             ]
 
@@ -516,6 +516,7 @@ class Parser(object):
                   | INTEGER_CONST
                   | REAL_CONST
                   | LPAREN expr RPAREN
+                  | string
                   | variable
                   | reference
                   | call_statement
@@ -540,6 +541,9 @@ class Parser(object):
             node = self.expr()
             self.eat(RPAREN)
             return node
+        elif token.type == STRING:
+            node = self.string()
+            return node
         elif token.type == REF:
             node = self.reference()
             return node
@@ -548,6 +552,11 @@ class Parser(object):
             if self.current_token.type == LPAREN:
                 return self.call_statement(node)
             return node
+
+    def string(self):
+        node = String(self.current_token.value)
+        self.eat(STRING)
+        return node
 
     def reference(self):
         """

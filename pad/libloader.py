@@ -52,4 +52,4 @@ class LibLoader(object):
                 obj = cls()
                 return obj.call(args)
 
-            self.error(name)
+        self.error(name)

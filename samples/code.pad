@@ -16,12 +16,12 @@ VAR
 $=
   Here we declare global variables.
 =$
-   number : INTEGER := 89;
-   a, b   : INTEGER;
-   y      : REAL;
-   odd    : INTEGER;
+   number := 89;
+   a, b;
+   y;
+   odd;
 
-SUB Test(&x : INTEGER); $ SUB's alternative: PROCEDURE $
+SUB Test(&x); $ SUB's alternative: PROCEDURE $
     $=
      '&' prefix says this is a reference argument, thus. caller should provide referenced variable.
      Since there is no semantic checking yet, x can be anything, therefore it is heavily prone to undefined behavior.
@@ -42,9 +42,9 @@ $=
     Example:
         a := Factorial(6);
 =$
-FN Factorial(x : INTEGER);
+FN Factorial(x);
 {
-    VAR r: INTEGER := 0;
+    VAR r := 0;
 
     IF x = 0 {
         r := 1;
@@ -54,9 +54,9 @@ FN Factorial(x : INTEGER);
     RET r;
 };
 
-FN MultiplyTwo(x : INTEGER); $ FN's alternative: FUNCTION $
+FN MultiplyTwo(x); $ FN's alternative: FUNCTION $
 VAR
-    t : INTEGER;
+    t;
 {
     t := 2*x;
     RET t
@@ -79,7 +79,7 @@ $=
     $ Anonymous scope. $
     {
         $ Unlike in Pascal, we can declare (and define) our variables inside of scope. $
-        var inline_var, f, g, h : INTEGER := 42;
+        var inline_var, f, g, h := 42;
 
         a := a + a;
         $ Here we can evaluate (3 % 2) inline and compare it with right-hand side. $
@@ -105,7 +105,10 @@ $=
         };
     };
     a := MultiplyTwo(2);
-    print(42);
+
+    $ Declare string literal and print its content with some random number converted to string. $
+    var stringTest := "hello world";
+    print(stringTest + " " + str(42) + " " + str(Factorial(8)));
 
     Test(&a); $ global variable 'a' will contain value '18.6~' $
 

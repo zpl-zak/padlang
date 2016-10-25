@@ -68,7 +68,7 @@ class InterpreterTestCase(unittest.TestCase):
             interpreter = self.makeInterpreter(
                 """PROGRAM Test;
                    VAR
-                       a : INTEGER;
+                       a;
                    BEGIN
                        a := %s
                    END.
@@ -87,10 +87,42 @@ class InterpreterTestCase(unittest.TestCase):
             interpreter = self.makeInterpreter(
                 """PROGRAM Test;
                    VAR
-                       a : REAL;
+                       a;
                    BEGIN
                        a := %s
                    END.
+                """ % expr
+            )
+            interpreter.interpret()
+            globals = interpreter.GLOBAL_MEMORY
+            self.assertEqual(globals['a'], result)
+
+    def test_inline_variables(self):
+        for expr, result in (
+                ('42', 42),
+                ('89', 89),
+        ):
+            interpreter = self.makeInterpreter(
+                """PROGRAM Test;
+                BEGIN
+                    var a := %s;
+                END.
+                """ % expr
+            )
+            interpreter.interpret()
+            globals = interpreter.GLOBAL_MEMORY
+            self.assertEqual(globals['a'], result)
+
+    def test_native_call(self):
+        for expr, result in (
+                ('test1()', 1),
+                ('test2()', 2),
+        ):
+            interpreter = self.makeInterpreter(
+                """PROGRAM Test;
+                BEGIN
+                    var a := %s;
+                END.
                 """ % expr
             )
             interpreter.interpret()
@@ -105,8 +137,8 @@ class InterpreterTestCase(unittest.TestCase):
             interpreter = self.makeInterpreter(
                 """PROGRAM Test;
                 VAR
-                    a : INTEGER;
-                PROCEDURE MultiplyTwo(x : INTEGER);
+                    a;
+                PROCEDURE MultiplyTwo(x);
                 BEGIN
                     a := 2 * x;
                 END;
@@ -128,8 +160,8 @@ class InterpreterTestCase(unittest.TestCase):
             interpreter = self.makeInterpreter(
                 """PROGRAM Test;
                 VAR
-                    a : INTEGER;
-                FUNCTION MultiplyTwo(x : INTEGER);
+                    a;
+                FUNCTION MultiplyTwo(x);
                 BEGIN
                     RET 2 * x;
                 END;
@@ -149,7 +181,7 @@ class InterpreterTestCase(unittest.TestCase):
             """
             PROGRAM Test;
             VAR
-                a : INTEGER;
+                a;
             BEGIN
                a := 10 * ;  $Invalid syntax$
             END.
@@ -162,7 +194,7 @@ class InterpreterTestCase(unittest.TestCase):
             """
             PROGRAM Test;
             VAR
-                a : INTEGER;
+                a;
             BEGIN
                a := 1 (1 + 2); $Invalid syntax$
             END.
@@ -173,9 +205,9 @@ class InterpreterTestCase(unittest.TestCase):
         text = """\
 PROGRAM Part11;
 VAR
-   number : INTEGER;
-   a, b   : INTEGER;
-   y      : REAL;
+   number;
+   a, b;
+   y;
 
 BEGIN $Part11$
    number := 2;

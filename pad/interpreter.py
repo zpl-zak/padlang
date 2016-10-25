@@ -33,6 +33,14 @@ class Interpreter(NodeVisitor):
         self.GLOBAL_MEMORY = OrderedDict()
         self.parent = parent
         self.loader = LibLoader()
+        self.types = {'INTEGER': 'int', 'STRING': 'str', 'REAL': 'float'}
+
+    def type_check(self, name, value):
+        if value is None:
+            return True
+
+        typ = self.types[name]
+        return True if type(value).__name__ == typ else False
 
     def visit_Program(self, node):
         self.visit(node.block)
@@ -42,6 +50,10 @@ class Interpreter(NodeVisitor):
 
         if node.val_node is not None:
             self.GLOBAL_MEMORY[node.var_node.value] = self.visit(node.val_node)
+
+    @staticmethod
+    def type_error(name):
+        raise TypeError("Cannot assign value! Type mismatch: " + name)
 
     def visit_VarDeclInline(self, node):
         for decl in node.decls:
@@ -60,6 +72,9 @@ class Interpreter(NodeVisitor):
 
         return self.visit(node.compound_statement)
 
+    def visit_String(self, node):
+        return node.text
+
     def visit_MethodCall(self, node):
         method = self.GLOBAL_MEMORY.get(node.name.value)
         env = self
@@ -69,7 +84,7 @@ class Interpreter(NodeVisitor):
             env = env.parent
 
         if method is None:
-            cargs = [self.visit(arg) for arg in node.args]
+            cargs = [self.visit(arg) for arg in node.args] if node.args is not None else ''
             return self.loader.call(node.name.value, cargs)
 
         call = Interpreter(None, self)
@@ -165,7 +180,7 @@ class Interpreter(NodeVisitor):
 
     @staticmethod
     def error_notfound(name):
-        raise Exception("Unknown variable " + name)
+        raise NameError("Unknown variable " + name)
 
     def set_var(self, node, value):
         var_name = node
@@ -179,6 +194,9 @@ class Interpreter(NodeVisitor):
 
                 if symbol is None:
                     env = env.parent
+
+            # if type(env.GLOBAL_MEMORY[var_name].value).__name__ != type(var_value).__name__:
+            #    self.type_error(var_name)
 
             env.GLOBAL_MEMORY[var_name] = var_value
         except AttributeError:
