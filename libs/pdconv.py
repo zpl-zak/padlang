@@ -12,3 +12,7 @@ class Float(object):
     def call(self, args):
         return float(args[0])
 
+
+class Type(object):
+    def call(self, args):
+        return type(args[0]).__name__
