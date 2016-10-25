@@ -6,15 +6,18 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-# Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
+try:
+    from pypandoc import convert
+    read_md = lambda f: convert(f, 'rst')
+except ImportError or OSError:
+    print("warning: pypandoc module not found, could not convert Markdown to RST")
+    read_md = lambda f: open(f, 'r').read()
 
 setup(
     name='padlang',
-    version='1.0.9',
+    version='1.0.10',
     description='PADLang is yet another interpreted language now with focus on Pascal/C-like syntax',
-    long_description=long_description,
+    long_description=read_md('README.md'),
     url='https://github.com/zaklaus/padlang',
     author='Dominik Madarasz',
     author_email='zaklaus@madaraszd.net',
@@ -38,7 +41,7 @@ setup(
     ],
     keywords='interpreted development language pascal c',
     packages=find_packages(exclude=['contrib', 'docs', 'tests', 'samples', 'tests']),
-    #install_requires=['peppercorn'],
+    install_requires=['pypandoc'],
     extras_require={
         'dev': ['check-manifest'],
         'test': ['coverage'],
