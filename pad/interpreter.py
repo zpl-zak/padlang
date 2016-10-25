@@ -21,6 +21,7 @@ from collections import OrderedDict
 
 from pad.ltypes import *
 from pad.walker import NodeVisitor
+from pad.libloader import LibLoader
 
 
 class Interpreter(NodeVisitor):
@@ -31,6 +32,7 @@ class Interpreter(NodeVisitor):
         self.tree = tree
         self.GLOBAL_MEMORY = OrderedDict()
         self.parent = parent
+        self.loader = LibLoader()
 
     def visit_Program(self, node):
         self.visit(node.block)
@@ -67,7 +69,8 @@ class Interpreter(NodeVisitor):
             env = env.parent
 
         if method is None:
-            raise Exception("Undefined method " + node.name.value)
+            cargs = [self.visit(arg) for arg in node.args]
+            return self.loader.call(node.name.value, cargs)
 
         call = Interpreter(None, self)
 

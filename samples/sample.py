@@ -38,10 +38,11 @@ def main():
     interpreter = Interpreter(tree)
     result = interpreter.interpret()
 
+    """
     print('Run-time GLOBAL_MEMORY contents:')
     for k, v in sorted(interpreter.GLOBAL_MEMORY.items()):
         print('%s = %s' % (k, v))
-
+    """
 
 if __name__ == '__main__':
     main()
