@@ -134,9 +134,7 @@ class Interpreter(NodeVisitor):
 
     def visit_Assign(self, node):
         var_name = node.left.value
-        print(var_name)
         var_value = self.visit(node.right)
-
         var_left_value = self.get_var(node.left.value)
 
         import pad.parse
@@ -150,11 +148,20 @@ class Interpreter(NodeVisitor):
         symbol = self.GLOBAL_MEMORY.get(var_name)
         env = self
 
-        while symbol is None and env is not None:
-            symbol = env.GLOBAL_MEMORY.get(var_name)
+        try:
+            while symbol is None and env is not None:
+                symbol = env.GLOBAL_MEMORY.get(var_name)
 
-        res = env.GLOBAL_MEMORY[var_name]
-        return res
+                if symbol is None:
+                    env = env.parent
+
+            res = env.GLOBAL_MEMORY[var_name]
+            return res
+        except AttributeError:
+            self.error_notfound(var_name)
+
+    def error_notfound(self, name):
+        raise Exception("Unknown variable " + name)
 
     def set_var(self, node, value):
         var_name = node
@@ -162,17 +169,25 @@ class Interpreter(NodeVisitor):
         symbol = self.GLOBAL_MEMORY.get(var_name)
         env = self
 
-        while symbol is None and env is not None:
-            symbol = env.GLOBAL_MEMORY.get(var_name)
+        try:
+            while symbol is None and env is not None:
+                symbol = env.GLOBAL_MEMORY.get(var_name)
 
-            if symbol is None:
-                env = env.parent
+                if symbol is None:
+                    env = env.parent
 
-        env.GLOBAL_MEMORY[var_name] = var_value
+            env.GLOBAL_MEMORY[var_name] = var_value
+        except AttributeError:
+            self.error_notfound(var_name)
 
     def visit_Var(self, node):
         var_name = node.value
         res = self.get_var(var_name)
+
+        import pad.parse
+        if type(res) == pad.parse.VarRef:
+            res = self.get_var(res.value)
+
         return res
 
     def visit_VarRef(self, node):

@@ -27,7 +27,7 @@ SUB Test(x : INTEGER); $ SUB's alternative: PROCEDURE $
         RET 42;
     };
 {
-    x := NestedTest();
+    x := NestedTest() * x;
 };
 
 $=

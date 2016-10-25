@@ -186,7 +186,14 @@ class SymbolTableBuilder(NodeVisitor):
 
     def visit_Assign(self, node):
         var_name = node.left.value
+        var_left_value = self.symtab.lookup(node.left.value)
+
+        import pad.parse
+        if type(var_left_value) == pad.parse.VarRef:
+            var_name = var_left_value.value
+
         var_symbol = self.symtab.lookup(var_name)
+
         if var_symbol is None:
             raise NameError(repr(var_name))
 
@@ -205,5 +212,4 @@ class SymbolTableBuilder(NodeVisitor):
 
 
     def visit_VarRef(self, node):
-        var_name = node.value
-        self.visit(var_name)
+        return node
