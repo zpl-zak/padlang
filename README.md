@@ -5,7 +5,7 @@ Yet another language written in Python.
 ## Contains
 * Basic parser for converting tokens into AST (Abstract syntax tree).
 * Interpreter. Handles the flow of instructions in AST.
-* Contains basic types: Integer, Real.
+* Contains basic types: Integer, Real, String.
 * Scoping, ie. scope can have its own local variables and still access those declared in outer scope.
 * Methods with their own scope. They clone program's main scope rules, therefore they support nested methods.
 * Conditional statements
