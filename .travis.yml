@@ -8,7 +8,8 @@ python:
   - "3.5-dev" # 3.5 development branch
   - "3.6-dev" # 3.6 development branch
 # command to run tests
+sudo: required
 script:
- - pip install -q padlang
+ - sudo apt-get install pandoc
  - python setup.py -q install
  - python tests/test_interpreter.py
