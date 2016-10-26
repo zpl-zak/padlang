@@ -108,7 +108,8 @@ $=
 
     $ Declare string literal and print its content with some random number converted to string. $
     var stringTest = "hello world";
-    print(stringTest + " " + str(42) + " " + str(Factorial(8)));
+    print(stringTest + " " + str(42) + " " + str(Factorial(Factorial(4))));
+    print("Is 2 + 2 = 4? " + str(2+2==4));
 
     Test(&a); $ global variable 'a' will contain value '18.6~' $
 

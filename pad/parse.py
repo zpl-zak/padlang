@@ -72,10 +72,8 @@ class Assign(AST):
 
 
 class Condition(AST):
-    def __init__(self, left, op, right, cons, alt):
-        self.left = left
-        self.token = self.op = op
-        self.right = right
+    def __init__(self, cond, cons, alt):
+        self.cond = cond
         self.cons = cons
         self.alt = alt
 
@@ -447,17 +445,10 @@ class Parser(object):
 
     def condition_statement(self):
         """
-        condition_statement : IF condition (THEN) statement ((ELSE condition_statement) | (ELSE statement))
+        condition_statement : IF expr (THEN) statement ((ELSE condition_statement) | (ELSE statement))
         """
         self.eat(IF)
-        left = self.expr()
-        op = None
-        if self.current_token.type in (EQUALS, LESSER, GREATER, NOT_EQUALS, GREATER_EQUALS, LESSER_EQUALS):
-            op = self.current_token
-            self.eat(op.type)
-        else:
-            self.error()
-        right = self.expr()
+        cond = self.expr()
 
         if self.current_token.type == THEN:
             self.eat(THEN)
@@ -467,7 +458,8 @@ class Parser(object):
             alt = self.statement()
         else:
             alt = self.empty()
-        node = Condition(left, op, right, cons, alt)
+
+        node = Condition(cond, cons, alt)
         return node
 
     def variable(self):
@@ -490,7 +482,7 @@ class Parser(object):
         """
         node = self.term()
 
-        while self.current_token.type in (PLUS, MINUS):
+        while self.current_token.type in (PLUS, MINUS, GREATER_EQUALS, LESSER_EQUALS, LESSER, GREATER, NOT_EQUALS, EQUALS):
             token = self.current_token
             self.eat(token.type)
 

@@ -116,6 +116,18 @@ class Interpreter(NodeVisitor):
             return self.visit(node.left) % self.visit(node.right)
         elif node.op.type == FLOAT_DIV:
             return float(self.visit(node.left)) / float(self.visit(node.right))
+        elif node.op.type == EQUALS:
+            return self.visit(node.left) == self.visit(node.right)
+        elif node.op.type == NOT_EQUALS:
+            return self.visit(node.left) != self.visit(node.right)
+        elif node.op.type == GREATER:
+            return self.visit(node.left) > self.visit(node.right)
+        elif node.op.type == LESSER:
+            return self.visit(node.left) < self.visit(node.right)
+        elif node.op.type == LESSER_EQUALS:
+            return self.visit(node.left) <= self.visit(node.right)
+        elif node.op.type == GREATER_EQUALS:
+            return self.visit(node.left) >= self.visit(node.right)
 
     def visit_Num(self, node):
         return node.value
@@ -216,24 +228,9 @@ class Interpreter(NodeVisitor):
         return node
 
     def visit_Condition(self, node):
-        left = node.left
-        op = node.op
-        right = node.right
         cons = node.cons
         alt = node.alt
-        result = False
-        if op.type == EQUALS:
-            result = self.visit(left) == self.visit(right)
-        if op.type == NOT_EQUALS:
-            result = self.visit(left) != self.visit(right)
-        if op.type == GREATER:
-            result = self.visit(left) > self.visit(right)
-        if op.type == LESSER:
-            result = self.visit(left) < self.visit(right)
-        if op.type == LESSER_EQUALS:
-            result = self.visit(left) <= self.visit(right)
-        if op.type == GREATER_EQUALS:
-            result = self.visit(left) >= self.visit(right)
+        result = self.visit(node.cond)
 
         if result is True:
             self.visit(cons)
