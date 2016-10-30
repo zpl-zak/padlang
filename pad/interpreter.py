@@ -162,6 +162,10 @@ class Interpreter(NodeVisitor):
         if met is False:
             self.visit(alt)
 
+    def visit_List(self, node):
+        l = [self.visit(x) for x in node.list]
+        return l
+
     def visit_Assign(self, node):
         var_name = node.left.value
         var_value = self.visit(node.right)
@@ -223,6 +227,32 @@ class Interpreter(NodeVisitor):
             res = self.get_var(res.value)
 
         return res
+
+    def visit_VarSlice(self, node):
+        res = self.visit(node.var)
+        acc = self.visit(node.slice)
+        start = 0
+        end = 1
+        step = 1
+
+        if len(acc) == 0:
+            start = 0
+            end = len(res)
+        elif len(acc) > 0:
+            start = acc[0]
+            end = start + 1
+
+        if len(acc) > 1:
+            end = acc[1] + 1
+
+        if len(acc) > 2:
+            step = acc[2]
+
+            if step < 1:
+                step = 1
+
+        sl = slice(start, end, step)
+        return res[sl]
 
     def visit_VarRef(self, node):
         return node

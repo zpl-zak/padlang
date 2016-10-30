@@ -40,7 +40,21 @@ class LibLoader(object):
         raise NameError("Undefined method: " + name)
 
     def call(self, name, args):
-        for mod in self.mods:
+        p = globals().copy()
+        p.update(locals())
+        m = p.get(name)
+
+        if m is None:
+            import builtins
+            m = builtins.__dict__[name]
+
+            if m is None:
+                self.error(name)
+
+        return m(*args)
+
+
+"""        for mod in self.mods:
             module = mod[0]
             methods = mod[1:]
 
@@ -51,5 +65,4 @@ class LibLoader(object):
                 cls = getattr(module, m)
                 obj = cls()
                 return obj.call(args)
-
-        self.error(name)
+"""

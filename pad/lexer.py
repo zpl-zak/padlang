@@ -184,6 +184,14 @@ class Lexer(object):
                 self.advance()
                 return Token(ASSIGN, '=')
 
+            if self.current_char == '[':
+                self.advance()
+                return Token(LBRACKET, '[')
+
+            if self.current_char == ']':
+                self.advance()
+                return Token(RBRACKET, ']')
+
             if self.current_char == '=' and self.peek() == '=':
                 self.advance()
                 self.advance()

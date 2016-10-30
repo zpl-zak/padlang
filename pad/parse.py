@@ -104,6 +104,21 @@ class Var(AST):
         self.value = token.value
 
 
+class VarSlice(AST):
+    """The VarSlice node defines slice which needs to be accessed."""
+
+    def __init__(self, var, slice):
+        self.var = var
+        self.slice = slice
+
+
+class List(AST):
+    """The List node is constructed out of factors."""
+
+    def __init__(self, arr):
+        self.list = arr
+
+
 class VarRef(AST):
     def __init__(self, token):
         self.token = token
@@ -464,11 +479,11 @@ class Parser(object):
 
     def variable(self):
         """
-        variable : ID
+        variable : ID (LBRACKET factor RBRACKET)*
         """
         node = Var(self.current_token)
-
         self.eat(ID)
+
         return node
 
     @staticmethod
@@ -510,6 +525,7 @@ class Parser(object):
                   | LPAREN expr RPAREN
                   | string
                   | variable
+                  | list
                   | reference
                   | call_statement
         """
@@ -517,37 +533,62 @@ class Parser(object):
         if token.type == PLUS:
             self.eat(PLUS)
             node = UnaryOp(token, self.factor())
-            return node
         elif token.type == MINUS:
             self.eat(MINUS)
             node = UnaryOp(token, self.factor())
-            return node
         elif token.type == INTEGER_CONST:
             self.eat(INTEGER_CONST)
-            return Num(token)
+            node = Num(token)
         elif token.type == REAL_CONST:
             self.eat(REAL_CONST)
-            return Num(token)
+            node = Num(token)
         elif token.type == LPAREN:
             self.eat(LPAREN)
             node = self.expr()
             self.eat(RPAREN)
-            return node
+        elif token.type == LBRACKET:
+            self.eat(LBRACKET)
+            node = self.list()
         elif token.type == STRING:
             node = self.string()
-            return node
         elif token.type == REF:
             node = self.reference()
-            return node
         else:
             node = self.variable()
             if self.current_token.type == LPAREN:
-                return self.call_statement(node)
-            return node
+                node = self.call_statement(node)
+
+        if self.current_token.type == LBRACKET:
+            self.eat(LBRACKET)
+            node = VarSlice(node, self.list())
+
+        return node
 
     def string(self):
         node = String(self.current_token.value)
         self.eat(STRING)
+        return node
+
+    def list(self):
+        """
+        list    : (factor COMMA)* RBRACKET
+        """
+
+        if self.current_token.type == RBRACKET:
+            self.eat(RBRACKET)
+            node = List([])
+            return node
+
+        node = self.factor()
+        l = [node]
+
+        while self.current_token.type == COMMA:
+            self.eat(COMMA)
+            node = self.factor()
+            l.append(node)
+
+        self.eat(RBRACKET)
+        node = List(l)
         return node
 
     def reference(self):
