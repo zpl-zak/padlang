@@ -1,4 +1,4 @@
-# PADLang [![Build Status](https://travis-ci.org/zaklaus/padlang.svg?branch=master)](https://travis-ci.org/zaklaus/padlang) [![Apache 2 licensed](https://img.shields.io/hexpm/l/plug.svg?maxAge=2592000)](https://github.com/arogan-group/DZMLang/blob/master/LICENSE)
+# PADLang [![Build Status](https://travis-ci.org/arogan-group/padlang.svg?branch=master)](https://travis-ci.org/arogan-group/padlang) [![Apache 2 licensed](https://img.shields.io/hexpm/l/plug.svg?maxAge=2592000)](https://github.com/arogan-group/DZMLang/blob/master/LICENSE)
 
 Yet another language written in Python.
 
