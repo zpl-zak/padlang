@@ -252,7 +252,12 @@ class Interpreter(NodeVisitor):
                 step = 1
 
         sl = slice(start, end, step)
-        return res[sl]
+        res = res[sl]
+
+        if len(res) == 1:
+            res = res[0]
+
+        return res
 
     def visit_VarRef(self, node):
         return node

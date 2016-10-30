@@ -113,22 +113,6 @@ class InterpreterTestCase(unittest.TestCase):
             globals = interpreter.GLOBAL_MEMORY
             self.assertEqual(globals['a'], result)
 
-    def test_native_call(self):
-        for expr, result in (
-                ('test1()', 1),
-                ('test2()', 2),
-        ):
-            interpreter = self.makeInterpreter(
-                """PROGRAM Test;
-                BEGIN
-                    var a := %s;
-                END.
-                """ % expr
-            )
-            interpreter.interpret()
-            globals = interpreter.GLOBAL_MEMORY
-            self.assertEqual(globals['a'], result)
-
     def test_procedure_declaration(self):
         for expr, result in (
                 ('42', 84),
@@ -145,6 +129,28 @@ class InterpreterTestCase(unittest.TestCase):
 
                 BEGIN
                     MultiplyTwo(%s);
+                END.
+                """ % expr
+            )
+            interpreter.interpret()
+            globals = interpreter.GLOBAL_MEMORY
+            self.assertEqual(globals['a'], result)
+
+    def test_list_declaration_and_comprehension(self):
+        for expr, result in (
+                ('var l = [1, 2, 3, 4, 5];\n'
+                 'a = l;', [1, 2, 3, 4, 5]),
+                ('a = q[0];', 10),
+                ('a = q[0,1];', [10, 20]),
+                ('a = q[0,2,2];', [10, 30])
+        ):
+            interpreter = self.makeInterpreter(
+                """PROGRAM Test;
+                VAR
+                    a;
+                BEGIN
+                    var q = [10, 20, 30, 40, 50, 60];
+                    %s
                 END.
                 """ % expr
             )
