@@ -14,12 +14,16 @@ $=
 PROGRAM PadLang;
 CLASS TestClass
 {
-    VAR
-        testmember = 42;
+    VAR testmember = 42;
 
-    FN CallMe;
+    FN GetMember;
     {
-        RET testmember * 2;
+        RET testmember;
+    };
+
+    SUB SetMember(x);
+    {
+        testmember = x;
     };
 };
 VAR
@@ -150,7 +154,9 @@ $=
 
     var testobject = new TestClass;
     print(testobject);
-    print(testobject:CallMe());
+
+    testobject:SetMember(9);
+    print(testobject:GetMember());
 
 
     Test(&a); $ global variable 'a' will contain value '18.6~' $
