@@ -61,6 +61,8 @@ RESERVED_KEYWORDS = {
     'FN': Token('FN', 'FN'),
     'RET': Token('RET', 'RET'),
     'END': Token('END', 'END'),
+    'CLASS': Token('CLASS', 'CLASS'),
+    'NEW': Token('NEW', 'NEW'),
 }
 
 

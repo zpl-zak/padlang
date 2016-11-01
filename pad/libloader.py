@@ -53,6 +53,10 @@ class LibLoader(object):
 
         return m(*args)
 
+    def objcall(self, obj, name, args):
+        call = getattr(obj, name)
+        return call(*args)
+
 
 """        for mod in self.mods:
             module = mod[0]

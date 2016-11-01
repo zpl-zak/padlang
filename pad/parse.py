@@ -64,6 +64,12 @@ class MethodCall(AST):
         self.args = args
 
 
+class ObjCall(AST):
+    def __init__(self, object, call):
+        self.obj = object
+        self.call = call
+
+
 class Assign(AST):
     def __init__(self, left, op, right):
         self.left = left
@@ -136,7 +142,8 @@ class Program(AST):
 
 
 class Block(AST):
-    def __init__(self, declarations, methods, compound_statement):
+    def __init__(self, classes, declarations, methods, compound_statement):
+        self.classes = classes
         self.declarations = declarations
         self.compound_statement = compound_statement
         self.methods = methods
@@ -146,6 +153,24 @@ class VarDecl(AST):
     def __init__(self, var_node, val_node=None):
         self.var_node = var_node
         self.val_node = val_node
+
+class ClassDecl(AST):
+    def __init__(self, name, decls, methods):
+        self.name = name
+        self.decls = decls
+        self.methods = methods
+
+
+class Class(AST):
+    def __init__(self, decls, methods):
+        self.decls = decls
+        self.methods = methods
+        self.env = None
+
+
+class ClassNew(AST):
+    def __init__(self, name):
+        self.name = name
 
 
 class Type(AST):
@@ -192,7 +217,8 @@ class Parser(object):
         return program_node
 
     def block(self):
-        """block : declarations (procedure | function)* compound_statement"""
+        """block : classes declarations (procedure | function)* compound_statement"""
+        classes = self.classes()
         declaration_nodes = self.declarations()
         methods = []
 
@@ -203,7 +229,7 @@ class Parser(object):
                 methods.append(self.function())
 
         compound_statement_node = self.compound_statement()
-        node = Block(declaration_nodes, methods, compound_statement_node)
+        node = Block(classes, declaration_nodes, methods, compound_statement_node)
         return node
 
     def procedure(self):
@@ -248,6 +274,40 @@ class Parser(object):
         if self.current_token.type == SEMI:
             self.eat(SEMI)
 
+        return node
+
+    def classes(self):
+        """
+        classes : (class_declaration SEMI)+
+                | empty
+        """
+        classes = []
+
+        while self.current_token.type is CLASS:
+            class_decl = self.class_declaration()
+            classes.append(class_decl)
+
+        return classes
+
+    def class_declaration(self):
+        """
+        class_declaration   : CLASS BEGIN declarations method+ END SEMI
+        """
+        self.eat(CLASS)
+        name = self.variable()
+        self.eat(BEGIN)
+        declaration_nodes = self.declarations()
+        methods = []
+
+        while self.current_token.type in (PROCEDURE, FUNCTION, FN, SUB):
+            if self.current_token.type in (PROCEDURE, SUB):
+                methods.append(self.procedure())
+            elif self.current_token.type in (FUNCTION, FN):
+                methods.append(self.function())
+
+        self.eat(END)
+        self.eat(SEMI)
+        node = ClassDecl(name, declaration_nodes, methods)
         return node
 
     def declarations(self):
@@ -370,6 +430,30 @@ class Parser(object):
         node = MethodCall(name, args)
         return node
 
+    def object_id(self, node=None):
+        """
+        object_id  : variable|call_statement COLON*
+        """
+        if node is None:
+            node = self.variable()
+
+            if self.current_token.type == LPAREN:
+                node = self.call_statement(node)
+
+        if self.current_token.type == COLON:
+            self.eat(COLON)
+            node = self.objcall_statement(node)
+
+        return node
+
+    def objcall_statement(self, obj):
+        """
+        objcall_statement   : object COLON object_id
+        """
+        node = self.object_id()
+        node = ObjCall(obj, node)
+        return node
+
     def arguments(self):
         """
         arguments   : (factor COMMA)+
@@ -386,6 +470,15 @@ class Parser(object):
 
         return args
 
+    def new_class(self):
+        """
+        new_class   : NEW variable
+        """
+        self.eat(NEW)
+        name = self.variable()
+        node = ClassNew(name)
+        return node
+
     def assignment_statement(self):
         """
         assignment_statement    : variable ASSIGN (expr | call_statement)
@@ -394,7 +487,16 @@ class Parser(object):
         left = self.variable()
 
         if self.current_token.type == LPAREN:
-            return self.call_statement(left)
+            node = self.call_statement(left)
+        else:
+            node = left
+
+        if self.current_token.type == COLON:
+            self.eat(COLON)
+            node = self.objcall_statement(node)
+
+        if type(node) in (ObjCall, MethodCall):
+            return node
 
         token = self.current_token
         self.eat(ASSIGN)
@@ -528,8 +630,10 @@ class Parser(object):
                   | list
                   | reference
                   | call_statement
+                  | new_class
         """
         token = self.current_token
+
         if token.type == PLUS:
             self.eat(PLUS)
             node = UnaryOp(token, self.factor())
@@ -549,14 +653,14 @@ class Parser(object):
         elif token.type == LBRACKET:
             self.eat(LBRACKET)
             node = self.list()
+        elif token.type == NEW:
+            node = self.new_class()
         elif token.type == STRING:
             node = self.string()
         elif token.type == REF:
             node = self.reference()
         else:
-            node = self.variable()
-            if self.current_token.type == LPAREN:
-                node = self.call_statement(node)
+            node = self.object_id()
 
         if self.current_token.type == LBRACKET:
             self.eat(LBRACKET)

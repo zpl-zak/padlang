@@ -12,6 +12,16 @@ $=
 =$
 
 PROGRAM PadLang;
+CLASS TestClass
+{
+    VAR
+        testmember = 42;
+
+    FN CallMe;
+    {
+        RET testmember * 2;
+    };
+};
 VAR
 $=
   Here we declare global variables.
@@ -121,6 +131,7 @@ $=
 
     $ List support $
     var l = [42, (2 * 43), Factorial(4)] + [1, 2, 3];
+    var aa = [42, (2 * 43), Factorial(4)] + [1, 2, 3];
     print(l);
 
     $ Index accessor $
@@ -132,6 +143,14 @@ $=
     print(l[0, len(l), 2]);
     print([1,2,3][1]);
     print(list_test()[0,1]);
+    aa:append(3);
+    print(aa);
+    var uppercase = "I AM LOWERCASE!";
+    print(uppercase:lower());
+
+    var testobject = new TestClass;
+    print(testobject);
+    print(testobject:CallMe());
 
 
     Test(&a); $ global variable 'a' will contain value '18.6~' $

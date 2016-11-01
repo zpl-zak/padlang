@@ -64,6 +64,9 @@ class Interpreter(NodeVisitor):
         pass
 
     def visit_Block(self, node):
+        for cls in node.classes:
+            self.visit(cls)
+
         for declaration in node.declarations:
             self.visit(declaration)
 
@@ -72,12 +75,37 @@ class Interpreter(NodeVisitor):
 
         return self.visit(node.compound_statement)
 
+    def visit_ClassDecl(self, node):
+        import pad.parse
+        name = node.name.value
+        self.GLOBAL_MEMORY[name] = pad.parse.Class(node.decls, node.methods)
+
+    def visit_ClassNew(self, node):
+        import copy
+        name = node.name.value
+        cls = copy.deepcopy(self.get_var(name))
+
+        env = Interpreter(None, self)
+        for x in cls.decls:
+            env.visit(x)
+
+        for x in cls.methods:
+            env.visit(x)
+
+        cls.env = env
+        return cls
+
     def visit_String(self, node):
         return node.text
 
-    def visit_MethodCall(self, node):
-        method = self.GLOBAL_MEMORY.get(node.name.value)
-        env = self
+    def visit_MethodCall(self, node, obj=None):
+        import pad.parse
+        if obj is not None and type(obj) is pad.parse.Class:
+            method = obj.env.GLOBAL_MEMORY.get(node.name.value)
+            env = obj.env
+        else:
+            method = self.GLOBAL_MEMORY.get(node.name.value)
+            env = self
 
         while method is None and env is not None:
             method = env.GLOBAL_MEMORY.get(node.name.value)
@@ -85,20 +113,30 @@ class Interpreter(NodeVisitor):
 
         if method is None:
             cargs = [self.visit(arg) for arg in node.args] if node.args is not None else ''
-            return self.loader.call(node.name.value, cargs)
 
-        call = Interpreter(None, self)
+            if obj is None:
+                return self.loader.call(node.name.value, cargs)
+            else:
+                return self.loader.objcall(obj, node.name.value, cargs)
+
+        currEnv = self if obj is None else obj.env
+        call = Interpreter(None, currEnv)
 
         if node.args is not None:
             i = 0
             for value in node.args:
-                call.GLOBAL_MEMORY[method.decl[i].var_node.value] = self.visit(value)
+                call.GLOBAL_MEMORY[method.decl[i].var_node.value] = currEnv.visit(value)
                 i += 1
 
         result = call.visit(method.code)
 
         if method.type == FUNCTION:
             return result
+
+    def visit_ObjCall(self, node):
+        this = self.visit(node.obj)
+        call = node.call
+        return self.visit_MethodCall(call, this)
 
     def visit_Method(self, node):
         self.GLOBAL_MEMORY[node.name] = node
