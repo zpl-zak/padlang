@@ -17,46 +17,64 @@
 #                                                                                #
 ##################################################################################
 
+mods = {}
+
 
 class LibLoader(object):
+
+
     def __init__(self):
-        import inspect
-        import pkgutil
         import libs
-        import importlib
-        import sys
-        self.mods = []
 
         for module in libs.__all__:
-            impmod = importlib.import_module('libs.'+module)
-            data = [impmod]
-            for name, obj in inspect.getmembers(impmod):
-                if inspect.isclass(obj):
-                    data.append(name)
-            self.mods.append(data)
+            self.imp("libs." + module)
 
     @staticmethod
     def error(name):
         raise NameError("Undefined method: " + name)
 
-    def call(self, name, args):
+    @staticmethod
+    def error_var(name):
+        raise NameError("Undefined variable: " + name)
+
+    def cook(self):
+        import builtins
         p = globals().copy()
         p.update(locals())
+        p.update(builtins.__dict__)
+        p.update(mods)
+        return p
+
+    def call(self, name, args):
+        p = self.cook()
         m = p.get(name)
 
         if m is None:
-            import builtins
-            m = builtins.__dict__[name]
-
-            if m is None:
-                self.error(name)
+            self.error(name)
 
         return m(*args)
+
+    def getname(self, name):
+        p = self.cook()
+        m = p.get(name)
+
+        if m is None:
+            self.error_var(name)
+
+        return m
 
     def objcall(self, obj, name, args):
         call = getattr(obj, name)
         return call(*args)
 
+    def objname(self, obj, name):
+        n = getattr(obj, name)
+        return n
+
+    def imp(self, name):
+        import importlib
+        impmod = importlib.import_module(name)
+        mods.update(impmod.__dict__)
 
 """        for mod in self.mods:
             module = mod[0]

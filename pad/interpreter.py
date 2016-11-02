@@ -43,6 +43,9 @@ class Interpreter(NodeVisitor):
         return True if type(value).__name__ == typ else False
 
     def visit_Program(self, node):
+        for x in node.imps:
+            self.loader.imp(x)
+
         self.visit(node.block)
 
     def visit_VarDecl(self, node):
@@ -64,16 +67,18 @@ class Interpreter(NodeVisitor):
         pass
 
     def visit_Block(self, node):
+        env = Interpreter(None, self)
+
         for cls in node.classes:
-            self.visit(cls)
+            env.visit(cls)
 
         for declaration in node.declarations:
-            self.visit(declaration)
+            env.visit(declaration)
 
         for method in node.methods:
-            self.visit(method)
+            env.visit(method)
 
-        return self.visit(node.compound_statement)
+        return env.visit(node.compound_statement)
 
     def visit_ClassDecl(self, node):
         import pad.parse
@@ -82,6 +87,7 @@ class Interpreter(NodeVisitor):
 
     def visit_ClassNew(self, node):
         import copy
+        import pad.parse, pad.lexer
         name = node.name.value
         cls = copy.deepcopy(self.get_var(name))
 
@@ -91,6 +97,10 @@ class Interpreter(NodeVisitor):
 
         for x in cls.methods:
             env.visit(x)
+
+        ctor = pad.parse.Var(pad.lexer.Token(ID, "ctor"))
+        ctor_call = pad.parse.MethodCall(ctor, node.args)
+        env.visit(ctor_call)
 
         cls.env = env
         return cls
@@ -122,6 +132,19 @@ class Interpreter(NodeVisitor):
         currEnv = self if obj is None else obj.env
         call = Interpreter(None, currEnv)
 
+        if type(method) is list:
+            for x in method:
+                a = [] if node.args is None else node.args
+                b = [] if x.decl is None else x.decl
+
+                if len(a) == len(b):
+                    method = x
+                    break
+
+        for x in method.decl:
+            if x.val_node is not None:
+                call.GLOBAL_MEMORY[x.var_node.value] = currEnv.visit(x.val_node)
+
         if node.args is not None:
             i = 0
             for value in node.args:
@@ -134,12 +157,34 @@ class Interpreter(NodeVisitor):
             return result
 
     def visit_ObjCall(self, node):
+        import pad.parse
         this = self.visit(node.obj)
         call = node.call
+
+        while type(call) is pad.parse.ObjCall:
+            this = self.visit_MethodCall(call.obj, this)
+            call = call.call
+
         return self.visit_MethodCall(call, this)
 
     def visit_Method(self, node):
-        self.GLOBAL_MEMORY[node.name] = node
+        old = self.GLOBAL_MEMORY.get(node.name)
+
+        if old is None:
+            self.GLOBAL_MEMORY[node.name] = node
+        else:
+            if type(old) is list:
+                for x in old:
+                    a = [] if node.decl is None else node.decl
+                    b = [] if x.decl is None else x.decl
+
+                    if len(a) == len(b):
+                        raise NameError("Can't declare duplicate method: " + node.name)
+
+                old.append(node)
+                self.GLOBAL_MEMORY[node.name] = old
+            else:
+                self.GLOBAL_MEMORY[node.name] = [old, node]
 
     def visit_BinOp(self, node):
         if node.op.type == PLUS:
@@ -230,7 +275,8 @@ class Interpreter(NodeVisitor):
             res = env.GLOBAL_MEMORY[var_name]
             return res
         except AttributeError:
-            self.error_notfound(var_name)
+            res = self.loader.getname(var_name)
+            return res
 
     @staticmethod
     def error_notfound(name):
@@ -299,6 +345,22 @@ class Interpreter(NodeVisitor):
 
     def visit_VarRef(self, node):
         return node
+
+    def visit_WhileLoop(self, node):
+        cond = self.visit(node.cond)
+
+        while cond is True:
+            self.visit(node.stat)
+            cond = self.visit(node.cond)
+
+    def visit_ForLoop(self, node):
+        name = node.name.value
+        lst = self.visit(node.lst)
+        env = Interpreter(None, self)
+
+        for x in lst:
+            env.GLOBAL_MEMORY[name] = x
+            env.visit(node.stat)
 
     def visit_Condition(self, node):
         cons = node.cons

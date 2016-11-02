@@ -118,6 +118,19 @@ class VarSlice(AST):
         self.slice = slice
 
 
+class WhileLoop(AST):
+    def __init__(self, cond, stat):
+        self.cond = cond
+        self.stat = stat
+
+
+class ForLoop(AST):
+    def __init__(self, name, l, stat):
+        self.name = name
+        self.lst = l
+        self.stat = stat
+
+
 class List(AST):
     """The List node is constructed out of factors."""
 
@@ -136,8 +149,9 @@ class NoOp(AST):
 
 
 class Program(AST):
-    def __init__(self, name, block):
+    def __init__(self, name, imps, block):
         self.name = name
+        self.imps = imps
         self.block = block
 
 
@@ -169,8 +183,9 @@ class Class(AST):
 
 
 class ClassNew(AST):
-    def __init__(self, name):
+    def __init__(self, name, args):
         self.name = name
+        self.args = args
 
 
 class Type(AST):
@@ -182,6 +197,7 @@ class Type(AST):
 class String(AST):
     def __init__(self, text):
         self.text = text
+
 
 class Parser(object):
     """
@@ -206,13 +222,24 @@ class Parser(object):
             self.error()
 
     def program(self):
-        """program : PROGRAM variable SEMI block DOT"""
+        """program : PROGRAM variable SEMI (import COMMA)* SEMI block DOT"""
         self.eat(PROGRAM)
         var_node = self.variable()
         prog_name = var_node.value
         self.eat(SEMI)
+        imps = []
+
+        if self.current_token.type == IMPORT:
+            self.eat(IMPORT)
+            imps = [self.variable().value]
+
+            while self.current_token.type == COMMA:
+                self.eat(COMMA)
+                imps.append(self.variable().value)
+
+        self.eat(SEMI)
         block_node = self.block()
-        program_node = Program(prog_name, block_node)
+        program_node = Program(prog_name, imps, block_node)
         self.eat(DOT)
         return program_node
 
@@ -398,6 +425,8 @@ class Parser(object):
                   | assignment_statement
                   | condition_statement
                   | case_statement
+                  | while_statement
+                  | for_statement
                   | variable_declaration
                   | expr
                   | empty
@@ -414,10 +443,36 @@ class Parser(object):
         elif self.current_token.type == VAR:
             self.eat(VAR)
             node = VarDeclInline(self.variable_declaration())
+        elif self.current_token.type == WHILE:
+            self.eat(WHILE)
+            node = self.while_statement()
+        elif self.current_token.type == FOR:
+            self.eat(FOR)
+            node = self.for_statement()
         elif self.current_token.type == CASE:
             node = self.case_statement()
         else:
             node = self.empty()
+        return node
+
+    def while_statement(self):
+        """
+        while_statement : condition statement
+        """
+        cond = self.expr()
+        stat = self.statement()
+        node = WhileLoop(cond, stat)
+        return node
+
+    def for_statement(self):
+        """
+        while_statement : variable IN expr statement
+        """
+        name = self.variable()
+        self.eat(IN)
+        lst = self.expr()
+        stat = self.statement()
+        node = ForLoop(name, lst, stat)
         return node
 
     def call_statement(self, name):
@@ -472,11 +527,18 @@ class Parser(object):
 
     def new_class(self):
         """
-        new_class   : NEW variable
+        new_class   : NEW variable arguments*
         """
         self.eat(NEW)
         name = self.variable()
-        node = ClassNew(name)
+        args = None
+
+        if self.current_token.type == LPAREN:
+            self.eat(LPAREN)
+            args = self.arguments()
+            self.eat(RPAREN)
+
+        node = ClassNew(name, args)
         return node
 
     def assignment_statement(self):

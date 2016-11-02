@@ -12,20 +12,40 @@ $=
 =$
 
 PROGRAM PadLang;
-CLASS TestClass
+
+import datetime;
+
+class TestClass
 {
-    VAR testmember = 42;
+    var testmember = 42;
 
-    FN GetMember;
-    {
-        RET testmember;
-    };
-
-    SUB SetMember(x);
+    sub ctor(x=0);
     {
         testmember = x;
     };
+
+    fn GetMember;
+    {
+        ret testmember;
+    };
+
+    sub SetMember(x);
+    {
+        testmember = x;
+    };
+
+    sub SetMember(x,y);
+    {
+        testmember = x*y;
+    };
+
+    sub SetMember;
+    {
+        testmember = 42;
+    };
 };
+
+
 VAR
 $=
   Here we declare global variables.
@@ -127,7 +147,7 @@ $=
     a = MultiplyTwo(2);
 
     $ Declare string literal and print its content with some random number converted to string. $
-    var stringTest = "hello world";
+    var stringTest = "hello world with utf-8: čiže toto funguje.";
     print(stringTest , " " + str(42) + " " + str(Factorial(Factorial(4))));
     print("Is 2 + 2 = 4? " + str(2+2==4));
     print("Implicit list support: ");
@@ -147,17 +167,39 @@ $=
     print(l[0, len(l), 2]);
     print([1,2,3][1]);
     print(list_test()[0,1]);
-    aa:append(3);
+    print(aa:count(3));
     print(aa);
     var uppercase = "I AM LOWERCASE!";
-    print(uppercase:lower());
+    print(uppercase:lower():upper():lower());
 
     var testobject = new TestClass;
     print(testobject);
 
-    testobject:SetMember(9);
+    print(testobject:GetMember());
+    testobject:SetMember(8,2);
     print(testobject:GetMember());
 
+    var obj2 = new TestClass(8);
+    print(obj2:GetMember());
+
+    var cool.test = 2;
+    print(cool.test);
+
+    print("The time is: " + str(datetime:now():time()));
+
+    print("Let's count together!");
+
+    var i = 1;
+    while i < 11
+    {
+        print("Number " + str(i));
+        i = i+1;
+    };
+
+    print("Let's print the content of 'aa' now:");
+    for x in aa {
+        print("element: " + str(x));
+    };
 
     Test(&a); $ global variable 'a' will contain value '18.6~' $
 
