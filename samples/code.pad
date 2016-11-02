@@ -13,7 +13,7 @@ $=
 
 PROGRAM PadLang;
 
-import datetime;
+import datetime, math, pad.lexer, pad.parse, pad.interpreter;
 
 class TestClass
 {
@@ -190,8 +190,7 @@ $=
     print("Let's count together!");
 
     var i = 1;
-    while i < 11
-    {
+    while i < 11 {
         print("Number " + str(i));
         i = i+1;
     };
@@ -201,7 +200,20 @@ $=
         print("element: " + str(x));
     };
 
+    for x in range(2,6) {
+        print("Interval Index: " + str(x));
+    };
+
+    print("Let's print out Cos(x) for x in (0;PI> by 0.1 step:");
+    var x = 0;
+    while x <= pi {
+        print("Cos(" + str(x) + ") = " + str(cos(x)));
+        x = x + 0.1;
+    };
+
+
     Test(&a); $ global variable 'a' will contain value '18.6~' $
+
 
     $f = Factorial(6);$
     $ NestedTest(); -- this will cause "undefined method" exception, since NestedTest is nested function from Test method. $

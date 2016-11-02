@@ -67,7 +67,7 @@ class Interpreter(NodeVisitor):
         pass
 
     def visit_Block(self, node):
-        env = Interpreter(None, self)
+        env = self if self.parent is None else Interpreter(None, self)
 
         for cls in node.classes:
             env.visit(cls)

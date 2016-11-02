@@ -79,8 +79,8 @@ class Lexer(object):
         self.pos = 0
         self.current_char = self.text[self.pos]
 
-    def error(self):
-        raise Exception('Invalid character')
+    def error(self, char):
+        raise SyntaxError('Invalid character: ' + char)
 
     def advance(self):
         """Advance the `pos` pointer and set the `current_char` variable."""
@@ -133,6 +133,12 @@ class Lexer(object):
         while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ('_', '&', '.')):
             result += self.current_char
             self.advance()
+
+        # Handle special occurence with END. keyword.
+        if result.upper().endswith("END."):
+            result = result[:-1]
+            self.pos -= 1
+            self.current_char = self.text[self.pos]
 
         if result[0] == '&':
             token = Token(REF, result[1:])
@@ -271,6 +277,6 @@ class Lexer(object):
                 self.advance()
                 return Token(DOT, '.')
 
-            self.error()
+            self.error(self.current_char)
 
         return Token(EOF, None)

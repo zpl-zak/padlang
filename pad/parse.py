@@ -237,7 +237,8 @@ class Parser(object):
                 self.eat(COMMA)
                 imps.append(self.variable().value)
 
-        self.eat(SEMI)
+            self.eat(SEMI)
+
         block_node = self.block()
         program_node = Program(prog_name, imps, block_node)
         self.eat(DOT)
