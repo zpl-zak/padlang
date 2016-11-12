@@ -1,0 +1,36 @@
+program ClassesTest;
+
+class Point2D {
+    var x,y = 8;
+
+    sub ctor {
+
+    };
+
+    sub ctor(_x, _y) {
+        x = _x;
+        y = _y;
+    };
+
+    fn inverse {
+        ret new Point2D(y,-x);
+    };
+
+    fn get {
+        ret [x,y];
+    };
+
+    fn __MUL(rhs) {
+        ret new Point2D(x*rhs:get()[0], y*rhs:get()[1]);
+    };
+};
+
+$ ENTRY POINT $
+{
+    var p = new Point2D(1,2);
+    print(p:inverse():get());
+
+    var q = p*p;
+
+    print((p*p):get());
+}.

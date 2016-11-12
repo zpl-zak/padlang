@@ -224,7 +224,7 @@ $=
     dictionary["name"] = "Test Dict Changed";
     dictionary["a"] = dictionary["square"](dictionary["a"]);
     print(dictionary);
-    
+
     aa[0] = 24;
     var multil = [1, 2, 3, 4, 5];
     for x in range(0, len(multil)) {

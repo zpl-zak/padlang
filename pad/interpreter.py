@@ -99,7 +99,12 @@ class Interpreter(NodeVisitor):
             env.visit(x)
 
         ctor = pad.parse.Var(pad.lexer.Token(ID, "ctor"))
-        ctor_call = pad.parse.MethodCall(ctor, node.args)
+
+        nargs = []
+        for x in node.args:
+            nargs.append(self.visit(x))
+
+        ctor_call = pad.parse.MethodCall(ctor, nargs)
         env.visit(ctor_call)
 
         cls.env = env
@@ -149,15 +154,18 @@ class Interpreter(NodeVisitor):
                     method = x
                     break
 
-        for x in method.decl:
-            if x.val_node is not None:
-                call.GLOBAL_MEMORY[x.var_node.value] = currEnv.visit(x.val_node)
-
         if node.args is not None:
             i = 0
             for value in node.args:
-                call.GLOBAL_MEMORY[method.decl[i].var_node.value] = currEnv.visit(value)
+                try:
+                    call.GLOBAL_MEMORY[method.decl[i].var_node.value] = currEnv.visit(value)
+                except Exception:
+                    call.GLOBAL_MEMORY[method.decl[i].var_node.value] = value
                 i += 1
+
+        for x in method.decl:
+            if x.val_node is not None:
+                call.GLOBAL_MEMORY[x.var_node.value] = currEnv.visit(x.val_node)
 
         result = call.visit(method.code)
 
@@ -198,33 +206,49 @@ class Interpreter(NodeVisitor):
                 self.GLOBAL_MEMORY[node.name] = [old, node]
 
     def visit_BinOp(self, node):
-        if node.op.type == PLUS:
-            return self.visit(node.left) + self.visit(node.right)
-        elif node.op.type == MINUS:
-            return self.visit(node.left) - self.visit(node.right)
-        elif node.op.type == MUL:
-            return self.visit(node.left) * self.visit(node.right)
-        elif node.op.type == INTEGER_DIV:
-            return self.visit(node.left) // self.visit(node.right)
-        elif node.op.type == INTEGER_MOD:
-            return self.visit(node.left) % self.visit(node.right)
-        elif node.op.type == FLOAT_DIV:
-            return float(self.visit(node.left)) / float(self.visit(node.right))
-        elif node.op.type == EQUALS:
-            return self.visit(node.left) == self.visit(node.right)
-        elif node.op.type == NOT_EQUALS:
-            return self.visit(node.left) != self.visit(node.right)
-        elif node.op.type == GREATER:
-            return self.visit(node.left) > self.visit(node.right)
-        elif node.op.type == LESSER:
-            return self.visit(node.left) < self.visit(node.right)
-        elif node.op.type == LESSER_EQUALS:
-            return self.visit(node.left) <= self.visit(node.right)
-        elif node.op.type == GREATER_EQUALS:
-            return self.visit(node.left) >= self.visit(node.right)
+        try:
+            if node.op.type == PLUS:
+                return self.visit(node.left) + self.visit(node.right)
+            elif node.op.type == MINUS:
+                return self.visit(node.left) - self.visit(node.right)
+            elif node.op.type == MUL:
+                return self.visit(node.left) * self.visit(node.right)
+            elif node.op.type == INTEGER_DIV:
+                return self.visit(node.left) // self.visit(node.right)
+            elif node.op.type == INTEGER_MOD:
+                return self.visit(node.left) % self.visit(node.right)
+            elif node.op.type == FLOAT_DIV:
+                return float(self.visit(node.left)) / float(self.visit(node.right))
+            elif node.op.type == EQUALS:
+                return self.visit(node.left) == self.visit(node.right)
+            elif node.op.type == NOT_EQUALS:
+                return self.visit(node.left) != self.visit(node.right)
+            elif node.op.type == GREATER:
+                return self.visit(node.left) > self.visit(node.right)
+            elif node.op.type == LESSER:
+                return self.visit(node.left) < self.visit(node.right)
+            elif node.op.type == LESSER_EQUALS:
+                return self.visit(node.left) <= self.visit(node.right)
+            elif node.op.type == GREATER_EQUALS:
+                return self.visit(node.left) >= self.visit(node.right)
+        except TypeError as te:
+            import pad.parse
+            lhs = self.visit(node.left)
+            if type(lhs) is pad.parse.Class:
+                import pad.lexer
+                cll = pad.parse.Var(pad.lexer.Token(ID, "__" + node.op.type))
+                rhs = self.visit(node.right)
+
+                fn_call = pad.parse.MethodCall(cll, [rhs])
+                return lhs.env.visit(fn_call)
+            else:
+                raise te
 
     def visit_Num(self, node):
         return node.value
+
+    def visit_Class(self, node):
+        return node
 
     def visit_UnaryOp(self, node):
         op = node.op.type

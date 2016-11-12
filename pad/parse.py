@@ -734,6 +734,10 @@ class Parser(object):
             self.eat(LPAREN)
             node = self.expr()
             self.eat(RPAREN)
+
+            if self.current_token.type == COLON:
+                node = self.object_id(node)
+
         elif token.type == BEGIN:
             self.eat(BEGIN)
             node = self.dictionary()
