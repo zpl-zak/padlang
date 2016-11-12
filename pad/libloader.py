@@ -105,7 +105,7 @@ class LibLoader(object):
 
     def imp(self, name, local=False):
         import importlib
-        if '*' in name:
+        if 'ALL' in name:
             n = '.'.join(name.split('.')[:-1])
             m = name.split('.')[-1]
             pak = importlib.import_module(n)
