@@ -110,16 +110,24 @@ class Interpreter(NodeVisitor):
 
     def visit_MethodCall(self, node, obj=None):
         import pad.parse
-        if obj is not None and type(obj) is pad.parse.Class:
-            method = obj.env.GLOBAL_MEMORY.get(node.name.value)
-            env = obj.env
-        else:
-            method = self.GLOBAL_MEMORY.get(node.name.value)
-            env = self
 
-        while method is None and env is not None:
-            method = env.GLOBAL_MEMORY.get(node.name.value)
-            env = env.parent
+        method = node.name
+        if type(method) is pad.parse.VarSlice:
+            method = self.visit(method)
+        else:
+            method = None
+
+        if method is None:
+            if obj is not None and type(obj) is pad.parse.Class:
+                method = obj.env.GLOBAL_MEMORY.get(node.name.value)
+                env = obj.env
+            else:
+                method = self.GLOBAL_MEMORY.get(node.name.value)
+                env = self
+
+            while method is None and env is not None:
+                method = env.GLOBAL_MEMORY.get(node.name.value)
+                env = env.parent
 
         if method is None:
             cargs = [self.visit(arg) for arg in node.args] if node.args is not None else ''
