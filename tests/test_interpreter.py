@@ -284,6 +284,30 @@ class InterpreterTestCase(unittest.TestCase):
             globals = interpreter.GLOBAL_MEMORY
             self.assertEqual(globals['a'], result)
 
+    def test_lambda(self):
+        for expr, result in (
+                (2, 4),
+                (8, 16),
+                (21, 42),
+        ):
+            interpreter = self.makeInterpreter(
+                """PROGRAM Test;
+                VAR
+                    a;
+                BEGIN
+                    VAR double = fn(x)
+                    BEGIN
+                        RET x * 2;
+                    END;
+
+                    a = double(%s);
+                END.
+                """ % expr
+            )
+            interpreter.interpret()
+            globals = interpreter.GLOBAL_MEMORY
+            self.assertEqual(globals['a'], result)
+
     def test_condition(self):
         for expr, result in (
                 ('0', 1),
