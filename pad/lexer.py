@@ -138,7 +138,7 @@ class Lexer(object):
     def _id(self):
         """Handle identifiers and reserved keywords"""
         result = ''
-        while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ('_', '&', '.')):
+        while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ('_', '&', '.', '*')):
             result += self.current_char
             self.advance()
 
