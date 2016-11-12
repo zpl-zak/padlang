@@ -249,6 +249,10 @@ class Interpreter(NodeVisitor):
         l = [self.visit(x) for x in node.list]
         return l
 
+    def visit_Dict(self, node):
+        d = {key.value: self.visit(value) for (key, value) in node.keyvals}
+        return d
+
     def visit_Assign(self, node):
         var_name = node.left.value
         var_value = self.visit(node.right)
@@ -318,6 +322,9 @@ class Interpreter(NodeVisitor):
         start = 0
         end = 1
         step = 1
+
+        if type(acc) is list:
+            return res[acc[0]]
 
         if len(acc) == 0:
             start = 0

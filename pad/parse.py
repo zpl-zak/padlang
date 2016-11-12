@@ -138,6 +138,11 @@ class List(AST):
         self.list = arr
 
 
+class Dict(AST):
+    def __init__(self, keyvals):
+        self.keyvals = keyvals
+
+
 class VarRef(AST):
     def __init__(self, token):
         self.token = token
@@ -690,6 +695,7 @@ class Parser(object):
                   | LPAREN expr RPAREN
                   | string
                   | variable
+                  | dictionary
                   | list
                   | reference
                   | call_statement
@@ -713,6 +719,9 @@ class Parser(object):
             self.eat(LPAREN)
             node = self.expr()
             self.eat(RPAREN)
+        elif token.type == BEGIN:
+            self.eat(BEGIN)
+            node = self.dictionary()
         elif token.type == LBRACKET:
             self.eat(LBRACKET)
             node = self.list()
@@ -734,6 +743,33 @@ class Parser(object):
     def string(self):
         node = String(self.current_token.value)
         self.eat(STRING)
+        return node
+
+    def dictionary(self):
+        """
+        dictionary  : (variable COLON factor COMMA)* END
+        """
+
+        if self.current_token.type == END:
+            self.eat(END)
+            node = Dict([None, None])
+            return node
+
+        key = self.variable()
+        keys = [key]
+        self.eat(COLON)
+        val = self.factor()
+        keyvals = [[key, val]]
+
+        while self.current_token.type == COMMA:
+            self.eat(COMMA)
+            key = self.variable()
+            self.eat(COLON)
+            val = self.factor()
+            keyvals.append([key, val])
+
+        self.eat(END)
+        node = Dict(keyvals)
         return node
 
     def list(self):

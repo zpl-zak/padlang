@@ -211,6 +211,16 @@ $=
         x = x + 0.1;
     };
 
+    $ Dictionary support. $
+    var dictionary = {
+        a: 45,
+        b: 42.25,
+        name: "Test dict"
+    };
+
+    print(dictionary);
+    print(dictionary["name"]);
+
 
     Test(&a); $ global variable 'a' will contain value '18.6~' $
 
