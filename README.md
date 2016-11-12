@@ -7,7 +7,8 @@ Yet another language written in Python.
 * Interpreter. Handles the flow of instructions in AST.
 * Contains basic types: Integer, Real, String.
 * Class support, inheritance.
-* List support.
+* List and dictionary support.
+* Scope module imports, global program imports.
 * Class member call support, which supports local and Python object members. (ie. you can call append on your list, but also call member of class declared locally.)
 * Scoping, ie. scope can have its own local variables and still access those declared in outer scope.
 * Methods with their own scope. They clone program's main scope rules, therefore they support nested methods.
