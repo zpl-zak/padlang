@@ -78,7 +78,7 @@ class LibLoader(object):
                 nargs.append(x)
 
         # HACK!
-        if name == "extern":
+        if name.lower() == "extern":
             nargs.append(env)
 
         return m(*nargs, **varargs)

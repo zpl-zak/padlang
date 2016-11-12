@@ -158,6 +158,132 @@ class InterpreterTestCase(unittest.TestCase):
             globals = interpreter.GLOBAL_MEMORY
             self.assertEqual(globals['a'], result)
 
+
+
+    def test_classes(self):
+        for expr, result in (
+                (20, 42),
+                (12, 42),
+        ):
+            interpreter = self.makeInterpreter(
+                """PROGRAM Test;
+                CLASS Number
+                BEGIN
+                    VAR x;
+
+                    SUB ctor(_x)
+                    BEGIN
+                        _x = 21;
+                        x = _x;
+                    END;
+
+                    FN Get;
+                    BEGIN
+                        RET x * 2;
+                    END;
+                END;
+
+                VAR
+                    a, c;
+                BEGIN
+                    c = NEW Number(%s);
+                    a = c:Get();
+                END.
+                """ % expr
+            )
+            interpreter.interpret()
+            globals = interpreter.GLOBAL_MEMORY
+            self.assertEqual(globals['a'], result)
+
+            def test_classes(self):
+                for expr, result in (
+                        (20, 42),
+                        (12, 42),
+                ):
+                    interpreter = self.makeInterpreter(
+                        """PROGRAM Test;
+                        CLASS Number
+                        BEGIN
+                            VAR x;
+
+                            SUB ctor(_x)
+                            BEGIN
+                                _x = 21;
+                                x = _x;
+                            END;
+
+                            FN Get;
+                            BEGIN
+                                RET x * 2;
+                            END;
+                        END;
+
+                        VAR
+                            a, c;
+                        BEGIN
+                            c = NEW Number(%s);
+                            a = c:Get();
+                        END.
+                        """ % expr
+                    )
+                    interpreter.interpret()
+                    globals = interpreter.GLOBAL_MEMORY
+                    self.assertEqual(globals['a'], result)
+
+
+
+
+    def test_modules(self):
+        for expr, result in (
+                (4, 16),
+                (6, 36),
+                (8, 64),
+        ):
+            interpreter = self.makeInterpreter(
+                """PROGRAM Test;
+                VAR
+                    a,b;
+                BEGIN
+                    a = math.pow(%s, 2);
+
+                    BEGIN
+                        IMPORT math;
+                        b = pow(%s, 2);
+                    END;
+                END.
+                """ % (expr, expr)
+            )
+            interpreter.interpret()
+            globals = interpreter.GLOBAL_MEMORY
+            self.assertEqual(globals['a'], result)
+            self.assertEqual(globals['b'], result)
+
+    def test_callback(self):
+        for expr, result in (
+                (2, 4),
+                (8, 16),
+                (21, 42),
+        ):
+            interpreter = self.makeInterpreter(
+                """PROGRAM Test;
+                IMPORT test_interpreter;
+                VAR
+                    a;
+
+                SUB callback(x)
+                BEGIN
+                    a = x;
+                END;
+
+                BEGIN
+                    callback0(%s, extern(callback));
+                END.
+                """ % expr
+            )
+            interpreter.interpret()
+            globals = interpreter.GLOBAL_MEMORY
+            self.assertEqual(globals['a'], result)
+
     def test_condition(self):
         for expr, result in (
                 ('0', 1),
@@ -231,31 +357,9 @@ class InterpreterTestCase(unittest.TestCase):
             """
             )
 
-    def test_program(self):
-        text = """\
-PROGRAM Part11;
-VAR
-   number;
-   a, b;
-   y;
-
-BEGIN $Part11$
-   number := 2;
-   a := number ;
-   b := 10 * a + 10 * number DIV 4;
-   y := 20 / 7 + 3.14
-END.  $Part11$
-"""
-        interpreter = self.makeInterpreter(text)
-        interpreter.interpret()
-
-        globals = interpreter.GLOBAL_MEMORY
-        self.assertEqual(len(globals.keys()), 4)
-        self.assertEqual(globals['number'], 2)
-        self.assertEqual(globals['a'], 2)
-        self.assertEqual(globals['b'], 25)
-        self.assertAlmostEqual(globals['y'], float(20) / 7 + 3.14)  # 5.9971...
-
+def callback0(x, y):
+    y(x * 2)
 
 if __name__ == '__main__':
     unittest.main()
+
