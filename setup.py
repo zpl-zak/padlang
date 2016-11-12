@@ -15,7 +15,7 @@ except ImportError or OSError:
 
 setup(
     name='padlang',
-    version='1.0.16',
+    version='1.0.17',
     description='PADLang is yet another interpreted language now with focus on Pascal/C-like syntax',
     long_description=read_md('README.md'),
     url='https://github.com/zaklaus/padlang',
