@@ -60,6 +60,8 @@ class LibLoader(object):
         if m is None:
             self.error(name)
 
+        if args is None:
+            return m
         return m(*args)
 
     def getname(self, name):
