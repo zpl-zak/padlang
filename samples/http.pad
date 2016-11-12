@@ -1,6 +1,7 @@
 program http;
 
 begin
+
     $ We can access module 'requests' directly. $
     var r = requests.get("http://google.com/");
     print(r:status_code);
@@ -12,6 +13,7 @@ begin
         import requests;
         var z = get("http://google.com/");
     };
+
     $=
     This would yield error, since we can't access module 'requests' outside of the upper scope.
         var y = get("http://google.com/");
