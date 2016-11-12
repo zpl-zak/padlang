@@ -121,9 +121,13 @@ class Interpreter(NodeVisitor):
     def visit_MethodCall(self, node, obj=None):
         import pad.parse
 
-        method = node
+        try:
+            method = node.name
+        except Exception:
+            method = node
         if type(method) is pad.parse.VarSlice:
             method = self.visit(method)
+            print(method)
         else:
             method = None
 
@@ -376,6 +380,8 @@ class Interpreter(NodeVisitor):
             if node.set is True:
                 res[acc[0]] = self.visit(node.setval)
                 return None
+            if type(acc[0]) is str:
+                return res[acc[0]]
 
         if len(acc) == 0:
             start = 0
