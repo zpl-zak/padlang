@@ -15,7 +15,7 @@ except ImportError or OSError:
 
 setup(
     name='padlang',
-    version='1.0.19',
+    version='1.0.20',
     description='PADLang is yet another interpreted language now with focus on Pascal/C-like syntax',
     long_description=read_md('README.md'),
     url='https://github.com/zaklaus/padlang',
@@ -31,10 +31,6 @@ setup(
         'Intended Audience :: Developers',
         'Programming Language :: Other',
         'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
