@@ -110,6 +110,12 @@ class Var(AST):
         self.value = token.value
 
 
+class VarArg(AST):
+    def __init__(self, var, val):
+        self.var = var
+        self.val = val
+
+
 class VarSlice(AST):
     """The VarSlice node defines slice which needs to be accessed."""
 
@@ -206,6 +212,11 @@ class Type(AST):
 
 
 class String(AST):
+    def __init__(self, text):
+        self.text = text
+
+
+class Quoted(AST):
     def __init__(self, text):
         self.text = text
 
@@ -520,6 +531,11 @@ class Parser(object):
         """
         if node is None:
             node = self.variable()
+            if self.current_token.type == ASSIGN:
+                self.eat(ASSIGN)
+                rhs = self.expr()
+                node = VarArg(node, rhs)
+                return node
 
             if self.current_token.type == LPAREN:
                 node = self.call_statement(node)
@@ -730,6 +746,7 @@ class Parser(object):
                   | dictionary
                   | list
                   | reference
+                  | quoted
                   | call_statement
                   | new_class
         """
@@ -755,6 +772,8 @@ class Parser(object):
             if self.current_token.type == COLON:
                 node = self.object_id(node)
 
+        elif token.type == GRAVE:
+            node = self.quoted()
         elif token.type == BEGIN:
             self.eat(BEGIN)
             node = self.dictionary()
@@ -785,6 +804,11 @@ class Parser(object):
     def string(self):
         node = String(self.current_token.value)
         self.eat(STRING)
+        return node
+
+    def quoted(self):
+        node = Quoted(self.current_token.value)
+        self.eat(GRAVE)
         return node
 
     def lambdadecl(self):

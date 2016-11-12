@@ -1,0 +1,15 @@
+program Gui;
+
+sub callback {
+    var f = open("tkinter.txt", "w");
+    f:write("This was written by PADLang and executed by Python!");
+    f:close();
+}
+
+begin
+    var top = tkinter.Tk();
+
+    var w = tkinter.Button(top, text="Hello World!", command=extern(callback));
+    w:pack();
+    top:mainloop();
+end.

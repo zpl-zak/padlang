@@ -122,6 +122,13 @@ class Interpreter(NodeVisitor):
     def visit_String(self, node):
         return node.text
 
+    def visit_Quoted(self, node):
+        return "`"+node.text+"`"
+
+    def visit_VarArg(self, node):
+        arg = ['VARARG', node.var.value, self.visit(node.val)]
+        return arg
+
     def visit_MethodCall(self, node, obj=None):
         import pad.parse
 
@@ -157,7 +164,7 @@ class Interpreter(NodeVisitor):
                 cargs = node.value
 
             if obj is None:
-                return self.loader.call(node.name.value, cargs)
+                return self.loader.call(node.name.value, cargs, self)
             else:
                 if type(node) is pad.parse.Var:
                     return self.loader.objcall(obj, cargs, None)
