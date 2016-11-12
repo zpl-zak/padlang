@@ -80,6 +80,10 @@ class Interpreter(NodeVisitor):
 
         return env.visit(node.compound_statement)
 
+    def visit_ImportDecl(self, node):
+        for x in node.imps:
+            self.loader.imp(x, True)
+
     def visit_ClassDecl(self, node):
         import pad.parse
         name = node.name.value
@@ -276,10 +280,12 @@ class Interpreter(NodeVisitor):
             return -self.visit(node.expr)
 
     def visit_Compound(self, node):
-        for child in node.children[:-1]:
-            self.visit(child)
+        env = self if self.parent is None else Interpreter(None, self)
 
-        return self.visit(node.children[-1])
+        for child in node.children[:-1]:
+            env.visit(child)
+
+        return env.visit(node.children[-1])
 
     def visit_CaseSwitch(self, node):
         test = self.visit(node.test)

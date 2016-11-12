@@ -1,8 +1,19 @@
 program http;
 
 begin
+    $ We can access module 'requests' directly. $
     var r = requests.get("http://google.com/");
     print(r:status_code);
     print(r:headers["content-type"]);
     print(r:text);
+
+    $ Import 'requests' gets removed when exiting following scope. $
+    {
+        import requests;
+        var z = get("http://google.com/");
+    };
+    $=
+    This would yield error, since we can't access module 'requests' outside of the upper scope.
+        var y = get("http://google.com/");
+    =$
 end.

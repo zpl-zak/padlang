@@ -155,12 +155,16 @@ class NoOp(AST):
     pass
 
 
-class Program(AST):
-    def __init__(self, name, imps, block):
-        self.name = name
+class ImportDecl(AST):
+    def __init__(self, imps):
         self.imps = imps
-        self.block = block
 
+
+class Program(AST):
+    def __init__(self, name, block, imps):
+        self.name = name
+        self.block = block
+        self.imps = imps
 
 class Block(AST):
     def __init__(self, classes, declarations, methods, compound_statement):
@@ -234,6 +238,7 @@ class Parser(object):
         var_node = self.variable()
         prog_name = var_node.value
         self.eat(SEMI)
+
         imps = []
 
         if self.current_token.type == IMPORT:
@@ -247,12 +252,13 @@ class Parser(object):
             self.eat(SEMI)
 
         block_node = self.block()
-        program_node = Program(prog_name, imps, block_node)
+        program_node = Program(prog_name, block_node, imps)
         self.eat(DOT)
         return program_node
 
     def block(self):
-        """block : classes declarations (procedure | function)* compound_statement"""
+        """block : imports classes declarations (procedure | function)* compound_statement"""
+
         classes = self.classes()
         declaration_nodes = self.declarations()
         methods = []
@@ -439,6 +445,7 @@ class Parser(object):
                   | case_statement
                   | while_statement
                   | for_statement
+                  | import_statement
                   | variable_declaration
                   | expr
                   | empty
@@ -452,6 +459,16 @@ class Parser(object):
         elif self.current_token.type == RET:
             self.eat(RET)
             node = self.expr()
+        elif self.current_token.type == IMPORT:
+            self.eat(IMPORT)
+
+            imps = [self.variable().value]
+
+            while self.current_token.type == COMMA:
+                self.eat(COMMA)
+                imps.append(self.variable().value)
+
+            node = ImportDecl(imps)
         elif self.current_token.type == VAR:
             self.eat(VAR)
             node = VarDeclInline(self.variable_declaration())

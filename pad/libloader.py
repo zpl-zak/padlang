@@ -25,6 +25,7 @@ class LibLoader(object):
 
     def __init__(self):
         import libs
+        self.localmods = {}
 
         for module in libs.__all__:
             self.imp("libs." + module)
@@ -43,6 +44,7 @@ class LibLoader(object):
         p.update(locals())
         p.update(builtins.__dict__)
         p.update(mods)
+        p.update(self.localmods)
         return p
 
     def call(self, name, args):
@@ -84,10 +86,13 @@ class LibLoader(object):
         n = getattr(obj, name)
         return n
 
-    def imp(self, name):
+    def imp(self, name, local=False):
         import importlib
         impmod = importlib.import_module(name)
-        mods.update(impmod.__dict__)
+        self.localmods.update(impmod.__dict__)
+
+        if local is False:
+            mods.update(self.localmods)
 
 """        for mod in self.mods:
             module = mod[0]
