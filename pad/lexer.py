@@ -106,6 +106,14 @@ class Lexer(object):
             self.advance()
         self.advance()  # the closing dollar sign
 
+    def quoted(self):
+        result = ''
+        while self.current_char != '`':
+            result += self.current_char
+            self.advance()
+        self.advance()
+        return result
+
     def number(self):
         """Return a (multidigit) integer or float consumed from the input."""
         result = ''
@@ -130,7 +138,7 @@ class Lexer(object):
     def _id(self):
         """Handle identifiers and reserved keywords"""
         result = ''
-        while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ('_', '&', '.')):
+        while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ('_', '&', '.', '*')):
             result += self.current_char
             self.advance()
 
@@ -173,6 +181,10 @@ class Lexer(object):
                 self.advance()
                 self.skip_comment()
                 continue
+
+            if self.current_char == '`':
+                self.advance()
+                return Token(GRAVE, self.quoted())
 
             if self.current_char == '"':
                 self.advance()

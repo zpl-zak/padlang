@@ -47,7 +47,7 @@ class LibLoader(object):
         p.update(self.localmods)
         return p
 
-    def call(self, name, args):
+    def call(self, name, args, env):
         if '.' in name:
             parts = name.split('.')
             module = parts[:-1]
@@ -64,7 +64,24 @@ class LibLoader(object):
 
         if args is None:
             return m
-        return m(*args)
+
+        nargs = []
+        varargs = {}
+        for x in args:
+            if type(x) is list:
+                if x[0] == 'VARARG':
+                    key, val = x[1:]
+                    varargs.update({key: val})
+                else:
+                    nargs.append(x)
+            else:
+                nargs.append(x)
+
+        # HACK!
+        if name == "extern":
+            nargs.append(env)
+
+        return m(*nargs, **varargs)
 
     def getname(self, name):
         p = self.cook()
@@ -88,8 +105,20 @@ class LibLoader(object):
 
     def imp(self, name, local=False):
         import importlib
-        impmod = importlib.import_module(name)
-        self.localmods.update(impmod.__dict__)
+        if '*' in name:
+            n = '.'.join(name.split('.')[:-1])
+            m = name.split('.')[-1]
+            pak = importlib.import_module(n)
+            import pkgutil
+
+            for imp, mod, ispkg in pkgutil.iter_modules(pak.__path__):
+                if mod == "__main__":
+                    continue
+                im = importlib.import_module(n+"."+mod, pak)
+                self.localmods.update(im.__dict__)
+        else:
+            impmod = importlib.import_module(name)
+            self.localmods.update(impmod.__dict__)
 
         if local is False:
             mods.update(self.localmods)
