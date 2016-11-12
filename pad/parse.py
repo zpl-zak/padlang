@@ -280,7 +280,9 @@ class Parser(object):
             decl = self.declarations()
             self.eat(RPAREN)
 
-        self.eat(SEMI)
+        if self.current_token.type is SEMI:
+            self.eat(SEMI)
+
         block = self.block()
         node = Method(name, decl, block, PROCEDURE)
 
@@ -302,7 +304,9 @@ class Parser(object):
             decl = self.declarations()
             self.eat(RPAREN)
 
-        self.eat(SEMI)
+        if self.current_token.type is SEMI:
+            self.eat(SEMI)
+
         block = self.block()
         node = Method(name, decl, block, FUNCTION)
 
@@ -704,6 +708,7 @@ class Parser(object):
                   | REAL_CONST
                   | LPAREN expr RPAREN
                   | string
+                  | lambda
                   | variable
                   | dictionary
                   | list
@@ -739,6 +744,9 @@ class Parser(object):
             node = self.new_class()
         elif token.type == STRING:
             node = self.string()
+        elif token.type == FN:
+            self.eat(FN)
+            node = self.lambdadecl()
         elif token.type == REF:
             node = self.reference()
         else:
@@ -753,6 +761,22 @@ class Parser(object):
     def string(self):
         node = String(self.current_token.value)
         self.eat(STRING)
+        return node
+
+    def lambdadecl(self):
+        """
+        lambda  : (LPAREN declarations RPAREN)* BLOCK
+        """
+        decl = []
+
+        if self.current_token.type == LPAREN:
+            self.eat(LPAREN)
+            decl = self.declarations()
+            self.eat(RPAREN)
+
+        block = self.block()
+        node = Method(None, decl, block, FUNCTION)
+
         return node
 
     def dictionary(self):

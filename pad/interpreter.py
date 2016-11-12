@@ -170,6 +170,9 @@ class Interpreter(NodeVisitor):
     def visit_Method(self, node):
         old = self.GLOBAL_MEMORY.get(node.name)
 
+        if node.name is None:
+            return node
+
         if old is None:
             self.GLOBAL_MEMORY[node.name] = node
         else:

@@ -230,6 +230,10 @@ $=
 
     print(dictionary["name"]);
 
+    var pokus = fn(a) {
+        ret a*2;
+    };
+    print(pokus(9));
 
     Test(&a); $ global variable 'a' will contain value '18.6~' $
 
