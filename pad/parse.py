@@ -113,9 +113,11 @@ class Var(AST):
 class VarSlice(AST):
     """The VarSlice node defines slice which needs to be accessed."""
 
-    def __init__(self, var, slice):
+    def __init__(self, var, slice, set=False, setval=None):
         self.var = var
         self.slice = slice
+        self.set = set
+        self.setval = setval
 
 
 class WhileLoop(AST):
@@ -553,6 +555,14 @@ class Parser(object):
                                 | call_statement
         """
         left = self.variable()
+
+        if self.current_token.type == LBRACKET:
+            self.eat(LBRACKET)
+            slice = self.list()
+            self.eat(ASSIGN)
+            val = self.expr()
+            node = VarSlice(left, slice, True, val)
+            return node
 
         if self.current_token.type == LPAREN:
             node = self.call_statement(left)

@@ -324,6 +324,9 @@ class Interpreter(NodeVisitor):
         step = 1
 
         if type(acc) is list:
+            if node.set is True:
+                res[acc[0]] = self.visit(node.setval)
+                return None
             return res[acc[0]]
 
         if len(acc) == 0:
@@ -343,12 +346,15 @@ class Interpreter(NodeVisitor):
                 step = 1
 
         sl = slice(start, end, step)
-        res = res[sl]
+        nres = res[sl]
 
-        if len(res) == 1:
-            res = res[0]
+        if len(nres) == 1:
+            nres = nres[0]
+        if node.set is True:
+            res[sl] = self.visit(node.setval)
+            return None
 
-        return res
+        return nres
 
     def visit_VarRef(self, node):
         return node

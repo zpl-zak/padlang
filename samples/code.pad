@@ -219,6 +219,15 @@ $=
     };
 
     print(dictionary);
+
+    dictionary["name"] = "Test Dict Changed";
+    aa[0] = 24;
+    var multil = [1, 2, 3, 4, 5];
+    for x in range(0, len(multil)) {
+        multil[x] = multil[x] * 2;
+    };
+    print(multil);
+
     print(dictionary["name"]);
 
 
