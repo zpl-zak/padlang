@@ -46,9 +46,17 @@ class LibLoader(object):
         return p
 
     def call(self, name, args):
-        p = self.cook()
-        m = p.get(name)
+        if '.' in name:
+            parts = name.split('.')
+            module = parts[:-1]
+            name = parts[-1]
+            import importlib
+            impmod = importlib.import_module(module[0]).__dict__
+            p = impmod
+        else:
+            p = self.cook()
 
+        m = p.get(name)
         if m is None:
             self.error(name)
 
@@ -65,6 +73,9 @@ class LibLoader(object):
 
     def objcall(self, obj, name, args):
         call = getattr(obj, name)
+
+        if args is None:
+            return call
         return call(*args)
 
     def objname(self, obj, name):

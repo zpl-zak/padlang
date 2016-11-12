@@ -98,14 +98,19 @@ class Interpreter(NodeVisitor):
         for x in cls.methods:
             env.visit(x)
 
-        ctor = pad.parse.Var(pad.lexer.Token(ID, "ctor"))
+        try:
+            ctor = pad.parse.Var(pad.lexer.Token(ID, "ctor"))
+            nargs = []
+            if node.args is not None:
+                for x in node.args:
+                    nargs.append(self.visit(x))
 
-        nargs = []
-        for x in node.args:
-            nargs.append(self.visit(x))
-
-        ctor_call = pad.parse.MethodCall(ctor, nargs)
-        env.visit(ctor_call)
+            ctor_call = pad.parse.MethodCall(ctor, nargs)
+            env.visit(ctor_call)
+        except NameError as ne:
+            if node.args is not None:
+                raise ne
+            pass
 
         cls.env = env
         return cls
@@ -116,31 +121,40 @@ class Interpreter(NodeVisitor):
     def visit_MethodCall(self, node, obj=None):
         import pad.parse
 
-        method = node.name
+        method = node
         if type(method) is pad.parse.VarSlice:
             method = self.visit(method)
         else:
             method = None
 
+        try:
+            if method is None:
+                if obj is not None and type(obj) is pad.parse.Class:
+                    method = obj.env.GLOBAL_MEMORY.get(node.name.value)
+                    env = obj.env
+                else:
+                    method = self.GLOBAL_MEMORY.get(node.name.value)
+                    env = self
+
+                while method is None and env is not None:
+                    method = env.GLOBAL_MEMORY.get(node.name.value)
+                    env = env.parent
+        except AttributeError:
+            pass
+
         if method is None:
-            if obj is not None and type(obj) is pad.parse.Class:
-                method = obj.env.GLOBAL_MEMORY.get(node.name.value)
-                env = obj.env
+            if type(node) is not pad.parse.Var:
+                cargs = [self.visit(arg) for arg in node.args] if node.args is not None else ''
             else:
-                method = self.GLOBAL_MEMORY.get(node.name.value)
-                env = self
-
-            while method is None and env is not None:
-                method = env.GLOBAL_MEMORY.get(node.name.value)
-                env = env.parent
-
-        if method is None:
-            cargs = [self.visit(arg) for arg in node.args] if node.args is not None else ''
+                cargs = node.value
 
             if obj is None:
                 return self.loader.call(node.name.value, cargs)
             else:
-                return self.loader.objcall(obj, node.name.value, cargs)
+                if type(node) is pad.parse.Var:
+                    return self.loader.objcall(obj, cargs, None)
+                else:
+                    return self.loader.objcall(obj, node.name.value, cargs)
 
         currEnv = self if obj is None else obj.env
         call = Interpreter(None, currEnv)

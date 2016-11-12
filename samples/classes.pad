@@ -1,15 +1,10 @@
 program ClassesTest;
 
 class Point2D {
-    var x,y = 8;
-
-    sub ctor {
-
-    };
+    var x,y = 0;
 
     sub ctor(_x, _y) {
-        x = _x;
-        y = _y;
+        set(_x,_y);
     };
 
     fn inverse {
@@ -18,6 +13,11 @@ class Point2D {
 
     fn get {
         ret [x,y];
+    };
+
+    sub set(_x,_y) {
+        x = _x;
+        y = _y;
     };
 
     fn __MUL(rhs) {
@@ -29,8 +29,5 @@ $ ENTRY POINT $
 {
     var p = new Point2D(1,2);
     print(p:inverse():get());
-
-    var q = p*p;
-
     print((p*p):get());
 }.
