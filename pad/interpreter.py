@@ -376,7 +376,6 @@ class Interpreter(NodeVisitor):
             if node.set is True:
                 res[acc[0]] = self.visit(node.setval)
                 return None
-            return res[acc[0]]
 
         if len(acc) == 0:
             start = 0

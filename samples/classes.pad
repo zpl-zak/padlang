@@ -25,6 +25,8 @@ class Point2D {
     };
 };
 
+var a;
+
 $ ENTRY POINT $
 {
     var p = new Point2D(1,2);
