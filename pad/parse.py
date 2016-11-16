@@ -596,6 +596,11 @@ class Parser(object):
         if self.current_token.type == LBRACKET:
             self.eat(LBRACKET)
             slice = self.list()
+
+            if self.current_token.type == LPAREN:
+                node = self.call_statement(VarSlice(left, slice))
+                return node
+
             self.eat(ASSIGN)
             val = self.expr()
             node = VarSlice(left, slice, True, val)
