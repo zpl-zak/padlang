@@ -20,6 +20,11 @@ class Point2D {
         y = _y;
     };
 
+    sub set(pos) {
+        x = pos[0];
+        y = pos[1];
+    }
+
     fn __MUL(rhs) {
         ret new Point2D(x*rhs:get()[0], y*rhs:get()[1]);
     };
@@ -27,8 +32,19 @@ class Point2D {
 
 var a;
 
+fn optional(x=0, y, z) {
+    if x > 0 {
+        ret x;
+    };
+
+    ret x;
+};
+
 $ ENTRY POINT $
 {
+    $ Prints 7, since x=7 is the last variable argument of 'x'. $
+    print(optional(x=5, 1,2, x=7));
+
     $ Class-based approach. $
     print(" ");
     print("Class-based approach to OOP.");
@@ -36,6 +52,13 @@ $ ENTRY POINT $
     print("Original object's pos: ", p:get());
     print("Inversed object's pos: ", p:inverse():get());
     print("Multiplied object's pos by itself: ", (p*p):get());
+
+    print("");
+    print("Method overload");
+    p:set(2,3);
+    print("Pos set with set(x,y): ", p:get());
+    p:set([2,3]);
+    print("Pos set with set(pos), where pos is an 2D array: ", p:get());
 
     $ Dictionary-based approach $
     print(" ");
@@ -58,8 +81,9 @@ $ ENTRY POINT $
     c["x"] = 2;
     c["y"] = 3;
 
+    $ Assign a value to the variable depending on the condition. (CaseSwitch Expression) $
     c["x"] = case c["x"] of {
-        [4,3], range(3) : {
+        [4,3], range(1,9) : {
             ret 4;
         };
         else {
