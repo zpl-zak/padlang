@@ -192,11 +192,8 @@ class Interpreter(NodeVisitor):
                 try:
                     visit = currEnv.visit(value)
 
-                    if type(visit) is list:
-                        if visit[0] == "VARARG":
-                            call.GLOBAL_MEMORY[visit[1]] = visit[2]
-                        else:
-                            call.GLOBAL_MEMORY[method.decl[i].var_node.value] = visit
+                    if type(visit) is list and len(visit) == 3 and visit[0] == "VARARG":
+                        call.GLOBAL_MEMORY[visit[1]] = visit[2]
                     else:
                         call.GLOBAL_MEMORY[method.decl[i].var_node.value] = visit
 
