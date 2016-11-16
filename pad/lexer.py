@@ -165,6 +165,17 @@ class Lexer(object):
         token = Token(STRING, result)
         return token
 
+    def peek_token(self, times):
+        last = None
+        pos = self.pos
+        for x in range(times):
+            last = self.get_next_token()
+
+        self.pos = pos
+        self.current_char = self.text[self.pos]
+        return last
+
+
     def get_next_token(self):
         """Lexical analyzer (also known as scanner or tokenizer)
 

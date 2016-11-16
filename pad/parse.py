@@ -541,6 +541,9 @@ class Parser(object):
                 node = self.call_statement(node)
 
         if self.current_token.type == COLON:
+            if self.lexer.peek_token(1).type == BEGIN:
+                return node
+
             self.eat(COLON)
             node = self.objcall_statement(node)
 
@@ -630,7 +633,7 @@ class Parser(object):
         case_statement : CASE variable OF case_list
         """
         self.eat(CASE)
-        var = self.variable()
+        var = self.factor()
 
         if self.current_token.type == OF:
             self.eat(OF)
@@ -667,12 +670,12 @@ class Parser(object):
         """
         case    : factor (COMMA factor)+ COLON statement
         """
-        cond = self.factor()
+        cond = self.expr()
         conds = [cond]
 
         while self.current_token.type == COMMA:
             self.eat(COMMA)
-            conds.append(self.factor())
+            conds.append(self.expr())
 
         self.eat(COLON)
         cons = self.statement()
@@ -747,6 +750,7 @@ class Parser(object):
                   | LPAREN expr RPAREN
                   | string
                   | lambda
+                  | case_statement
                   | variable
                   | dictionary
                   | list
@@ -779,6 +783,8 @@ class Parser(object):
 
         elif token.type == GRAVE:
             node = self.quoted()
+        elif token.type == CASE:
+            node = self.case_statement()
         elif token.type == BEGIN:
             self.eat(BEGIN)
             node = self.dictionary()
