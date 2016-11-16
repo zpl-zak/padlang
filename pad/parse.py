@@ -388,22 +388,31 @@ class Parser(object):
         """variable_declaration : ID (COMMA ID)* (ASSIGN expr)*"""
         var_nodes = [Var(self.current_token)]  # first ID
         self.eat(self.current_token.type)
+        value = []
+
+        if self.current_token.type == ASSIGN:
+            self.eat(ASSIGN)
+            value.append(self.expr())
+        else:
+            value.append(None)
 
         while self.current_token.type == COMMA:
             self.eat(COMMA)
             var_nodes.append(Var(self.current_token))
             self.eat(ID)
 
-        value = None
+            if self.current_token.type == ASSIGN:
+                self.eat(ASSIGN)
+                value.append(self.expr())
+            else:
+                value.append(None)
 
-        if self.current_token.type == ASSIGN:
-            self.eat(ASSIGN)
-            value = self.expr()
+        var_declarations = []
 
-        var_declarations = [
-            VarDecl(var_node, value)
-            for var_node in var_nodes
-            ]
+        i = 0
+        for var in var_nodes:
+            var_declarations.append(VarDecl(var, value[i]))
+            i += 1
 
         return var_declarations
 

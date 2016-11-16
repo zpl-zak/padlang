@@ -182,18 +182,27 @@ class Interpreter(NodeVisitor):
                     method = x
                     break
 
+        for x in method.decl:
+            if x.val_node is not None:
+                call.GLOBAL_MEMORY[x.var_node.value] = currEnv.visit(x.val_node)
+
         if node.args is not None:
             i = 0
             for value in node.args:
                 try:
-                    call.GLOBAL_MEMORY[method.decl[i].var_node.value] = currEnv.visit(value)
+                    visit = currEnv.visit(value)
+
+                    if type(visit) is list:
+                        if visit[0] == "VARARG":
+                            call.GLOBAL_MEMORY[visit[1]] = visit[2]
+                        else:
+                            call.GLOBAL_MEMORY[method.decl[i].var_node.value] = visit
+                    else:
+                        call.GLOBAL_MEMORY[method.decl[i].var_node.value] = visit
+
                 except Exception:
                     call.GLOBAL_MEMORY[method.decl[i].var_node.value] = value
                 i += 1
-
-        for x in method.decl:
-            if x.val_node is not None:
-                call.GLOBAL_MEMORY[x.var_node.value] = currEnv.visit(x.val_node)
 
         result = call.visit(method.code)
 
