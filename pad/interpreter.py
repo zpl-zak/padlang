@@ -298,17 +298,25 @@ class Interpreter(NodeVisitor):
         conds = node.conds
         alt = node.alt
 
-        met = False
         for case in conds:
             case_conds = case.cond
             res = case.cons
-            for cond in case_conds:
-                if self.visit(cond) == test:
-                    self.visit(res)
-                    met = True
+            xconds = []
 
-        if met is False:
-            self.visit(alt)
+            for cond in case_conds:
+                xconds.append(self.visit(cond))
+
+            if test in xconds:
+                return self.visit(res)
+
+            for x in xconds:
+                try:
+                    if test in x:
+                        return self.visit(res)
+                except TypeError:
+                    pass
+
+        return self.visit(alt)
 
     def visit_List(self, node):
         l = [self.visit(x) for x in node.list]
