@@ -138,7 +138,6 @@ class Interpreter(NodeVisitor):
             method = node
         if type(method) is pad.parse.VarSlice:
             method = self.visit(method)
-            print(method)
         else:
             method = None
 

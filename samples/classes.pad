@@ -29,7 +29,37 @@ var a;
 
 $ ENTRY POINT $
 {
+    $ Class-based approach. $
+    print(" ");
+    print("Class-based approach to OOP.");
     var p = new Point2D(1,2);
-    print(p:inverse():get());
-    print((p*p):get());
+    print("Original object's pos: ", p:get());
+    print("Inversed object's pos: ", p:inverse():get());
+    print("Multiplied object's pos by itself: ", (p*p):get());
+
+    $ Dictionary-based approach $
+    print(" ");
+    print("Dict-based approach to OOP.");
+    var d = {
+        x: 0,
+        y: 0,
+        mul: fn (a, b) {
+            a["x"] = a["x"] * b["x"];
+            a["y"] = a["y"] * b["y"];
+        },
+        inverse: fn (a) {
+            var x1 = a["x"];
+            var y1 = a["y"];
+            a["x"] = y1;
+            a["y"] = -x1;
+        }
+    };
+    var c = copy.copy(d); $ Make sure we duplicate from template. $
+    c["x"] = 2;
+    c["y"] = 3;
+
+    c["inverse"](c); $ Even though we get the function from the dict, we can't access its other values inside of it. $
+
+    print("Our dict instance: ", c);
+    print("Original dict template: ", d);
 }.
