@@ -468,7 +468,10 @@ class Interpreter(NodeVisitor):
 
         for x in lst:
             env.GLOBAL_MEMORY[name] = x
-            res.append(env.visit(node.stat))
+            r = env.visit(node.stat)
+
+            if r is not None:
+                res.append(r)
 
         return res
 

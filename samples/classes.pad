@@ -95,8 +95,10 @@ $ ENTRY POINT $
     var qw = [2, 1-9];
     print(qw);
 
-    var ql = for x in [1-9] {
-        ret x*2;
+    var ql = for x in [1-100] {
+        if x mod 7 == 0 {
+            ret x;
+        };
     };
     print(ql);
 
