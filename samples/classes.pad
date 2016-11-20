@@ -80,40 +80,6 @@ $ ENTRY POINT $
     var c = copy.copy(d); $ Make sure we duplicate from template. $
     c["x"] = 2;
     c["y"] = 3;
-
-    $ Assign a value to the variable depending on the condition. (CaseSwitch Expression) $
-    c["x"] = case c["x"] of {
-        [4,3], range(1,9) : {
-            ret 4;
-        };
-        else {
-            ret 5;
-        };
-    };
-
-    $ List comprehension $
-    var qw = [2, 1-9];
-    print(qw);
-
-    var ql = for x in [1-100] {
-        if x mod 7 == 0 {
-            ret x;
-        };
-    };
-    print(ql);
-
-    var z = 4;
-    var ct = if z == 7 {
-        ret 4;
-    } else {
-        ret 5;
-    };
-    print(ct);
-
-    if has(7, qw) {
-        print("7 is in qw");
-    };
-
     c["inverse"](c); $ Even though we get the function from the dict, we can't access its other values inside of it. $
 
     print("Our dict instance: ", c);
