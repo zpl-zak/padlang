@@ -1,0 +1,43 @@
+program comprehension;
+begin
+    var d = {
+        x: 0,
+        y: 0
+    };
+    var c = copy.copy(d); $ Make sure we duplicate from template. $
+    c["x"] = 2;
+    c["y"] = 3;
+
+    $ Assign a value to the variable depending on the condition. (CaseSwitch Expression) $
+    c["x"] = case c["x"] of {
+        [4,3], [1-9] : {
+            ret 4;
+        };
+        else {
+            ret 5;
+        };
+    };
+
+    $ List comprehension $
+    var qw = [2, 1-9];
+    print(qw);
+
+    var ql = for x in [1-77] {
+        if x mod 7 == 0 {
+            ret x;
+        };
+    };
+    print(ql);
+
+    var z = 4;
+    var ct = if z == 7 {
+        ret 4;
+    } else {
+        ret 5;
+    };
+    print(ct);
+
+    if has(7, qw) {
+        print("7 is in qw");
+    };
+end.

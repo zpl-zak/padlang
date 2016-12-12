@@ -328,6 +328,20 @@ class Interpreter(NodeVisitor):
         l = [self.visit(x) for x in node.list]
         return l
 
+    def visit_ListRange(self, node):
+        low = self.visit(node.low)
+        high = self.visit(node.high)
+        step = self.visit(node.step)
+
+        l = list(range(low, high, step))
+        return l
+
+    def visit_list(self, node):
+        return node
+
+    def visit_NoneType(self, node):
+        return node
+
     def visit_Dict(self, node):
         d = {key.value: self.visit(value) for (key, value) in node.keyvals}
         return d
@@ -450,10 +464,16 @@ class Interpreter(NodeVisitor):
         name = node.name.value
         lst = self.visit(node.lst)
         env = Interpreter(None, self)
+        res = []
 
         for x in lst:
             env.GLOBAL_MEMORY[name] = x
-            env.visit(node.stat)
+            r = env.visit(node.stat)
+
+            if r is not None:
+                res.append(r)
+
+        return res
 
     def visit_Condition(self, node):
         cons = node.cons
@@ -461,9 +481,9 @@ class Interpreter(NodeVisitor):
         result = self.visit(node.cond)
 
         if result is True:
-            self.visit(cons)
+            return self.visit(cons)
         else:
-            self.visit(alt)
+            return self.visit(alt)
 
     def visit_NoOp(self, node):
         pass

@@ -126,6 +126,13 @@ class VarSlice(AST):
         self.setval = setval
 
 
+class ListRange(AST):
+    def __init__(self, low, high, step=1):
+        self.low = low
+        self.high = high
+        self.step = step
+
+
 class WhileLoop(AST):
     def __init__(self, cond, stat):
         self.cond = cond
@@ -760,6 +767,7 @@ class Parser(object):
                   | string
                   | lambda
                   | case_statement
+                  | for_statement
                   | variable
                   | dictionary
                   | list
@@ -782,6 +790,11 @@ class Parser(object):
         elif token.type == REAL_CONST:
             self.eat(REAL_CONST)
             node = Num(token)
+        elif token.type == IF:
+            node = self.condition_statement()
+        elif token.type == FOR:
+            self.eat(FOR)
+            node = self.for_statement()
         elif token.type == LPAREN:
             self.eat(LPAREN)
             node = self.expr()
@@ -876,7 +889,7 @@ class Parser(object):
 
     def list(self):
         """
-        list    : (factor COMMA)* RBRACKET
+        list    : (factor COMMA)*|((factor COMMA)* factor MINUS factor)* RBRACKET
         """
 
         if self.current_token.type == RBRACKET:
@@ -886,6 +899,21 @@ class Parser(object):
 
         node = self.factor()
         l = [node]
+
+        if (self.current_token.type == COMMA and self.lexer.peek_token(2).type == MINUS) or self.current_token.type == MINUS:
+            if self.current_token.type == COMMA and self.lexer.peek_token(2).type == MINUS:
+                step = node
+                self.eat(COMMA)
+                low = self.factor()
+            else:
+                import pad.lexer
+                step = Num(pad.lexer.Token(INTEGER, 1))
+                low = node
+            self.eat(MINUS)
+            high = self.factor()
+            self.eat(RBRACKET)
+            node = ListRange(low, high, step)
+            return node
 
         while self.current_token.type == COMMA:
             self.eat(COMMA)
