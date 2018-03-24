@@ -4,9 +4,9 @@ begin
 
     $ We can access module 'requests' directly. $
     var r = requests.get("http://google.com/");
-    print(r:status_code);
-    print(r:headers["content-type"]);
-    print(r:text);
+    print(r.status_code);
+    print(r.headers["content-type"]);
+    print(r.text);
 
     $ Import 'requests' gets removed when exiting following scope. $
     {
@@ -18,4 +18,12 @@ begin
     This would yield error, since we can't access module 'requests' outside of the upper scope.
         var y = get("http://google.com/");
     =$
+
+    $ We can also `require` a module and store it into a variable as well. $
+    {
+        var h = require(requests);
+        
+        var r = h.get("http://google.com/");
+        print(r.status_code);
+    };
 end.

@@ -172,12 +172,22 @@ class Interpreter(NodeVisitor):
             if obj is None:
                 p = node.name.value
                 n = p.split('.')
-                d = self.get_var(n[0])
+                md= False
+                d = None
+
+                try:
+                    d = self.get_var(n[0])
+                except NameError:
+                    md = True
 
                 if type(d) is dict:
                     p = d[n[1]]
-                elif '.' in p and issubclass(type(d), pad.parse.AST) is False:
-                    return self.loader.objcall(d, n[1], cargs)
+                elif '.' in p and issubclass(type(d), pad.parse.AST) is False and md is False:
+                    o = getattr(d, n[1])
+                    if hasattr(o, '__call__') is False:
+                        return self.loader.objcall(d, n[1], None)
+                    else:
+                        return self.loader.objcall(d, n[1], cargs)
 
                 return self.loader.call(p, cargs, self)
             else:
@@ -417,6 +427,12 @@ class Interpreter(NodeVisitor):
 
     def visit_Var(self, node):
         var_name = node.value
+        
+        if '.' in var_name:
+            names = var_name.split('.')
+            d = self.get_var(names[0])
+            return self.loader.objcall(d, names[1], None)
+
         res = self.get_var(var_name)
 
         import pad.parse
