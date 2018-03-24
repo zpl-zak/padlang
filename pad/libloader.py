@@ -48,7 +48,10 @@ class LibLoader(object):
         return p
 
     def call(self, name, args, env):
-        if '.' in name:
+        m = None
+        if hasattr(name, '__call__'):
+            m = name
+        elif '.' in name:
             parts = name.split('.')
             module = parts[:-1]
             name = parts[-1]
@@ -58,9 +61,10 @@ class LibLoader(object):
         else:
             p = self.cook()
 
-        m = p.get(name)
         if m is None:
-            self.error(name)
+            m = p.get(name)
+            if m is None:
+                self.error(name)
 
         if args is None:
             return m
@@ -78,7 +82,7 @@ class LibLoader(object):
                 nargs.append(x)
 
         # HACK!
-        if name.lower() == "extern":
+        if hasattr(name, '__call__') is False and name.lower() == "extern":
             nargs.append(env)
 
         return m(*nargs, **varargs)
@@ -103,8 +107,9 @@ class LibLoader(object):
         n = getattr(obj, name)
         return n
 
-    def imp(self, name, local=False):
+    def imp(self, name, local=False, assign=False):
         import importlib
+        imps = {}
         if 'ALL' in name:
             n = '.'.join(name.split('.')[:-1])
             m = name.split('.')[-1]
@@ -115,13 +120,15 @@ class LibLoader(object):
                 if mod == "__main__":
                     continue
                 im = importlib.import_module(n+"."+mod, pak)
-                self.localmods.update(im.__dict__)
+                self.localmods.update(im.__dict__) if assign == False else imps.update(im.__dict__)
         else:
             impmod = importlib.import_module(name)
-            self.localmods.update(impmod.__dict__)
+            self.localmods.update(impmod.__dict__)  if assign == False else imps.update(impmod.__dict__)
 
         if local is False:
             mods.update(self.localmods)
+
+        return imps
 
 """        for mod in self.mods:
             module = mod[0]

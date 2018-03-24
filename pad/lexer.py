@@ -62,6 +62,7 @@ RESERVED_KEYWORDS = {
     'RET': Token('RET', 'RET'),
     'END': Token('END', 'END'),
     'IMPORT': Token('IMPORT', 'IMPORT'),
+    'REQUIRE': Token('REQUIRE', 'REQUIRE'),
     'CLASS': Token('CLASS', 'CLASS'),
     'NEW': Token('NEW', 'NEW'),
     'WHILE': Token('WHILE', 'WHILE'),

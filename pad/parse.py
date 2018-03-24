@@ -169,8 +169,9 @@ class NoOp(AST):
 
 
 class ImportDecl(AST):
-    def __init__(self, imps):
+    def __init__(self, imps, assign=False):
         self.imps = imps
+        self.assign = assign
 
 
 class Program(AST):
@@ -768,6 +769,7 @@ class Parser(object):
                   | lambda
                   | case_statement
                   | for_statement
+                  | import_expr
                   | variable
                   | dictionary
                   | list
@@ -792,6 +794,18 @@ class Parser(object):
             node = Num(token)
         elif token.type == IF:
             node = self.condition_statement()
+        elif token.type == REQUIRE:
+            self.eat(REQUIRE)
+            self.eat(LPAREN)
+            imps = [self.variable().value]
+
+            while self.current_token.type == COMMA:
+                self.eat(COMMA)
+                imps.append(self.variable().value)
+
+            self.eat(RPAREN)
+            node = ImportDecl(imps, True)
+
         elif token.type == FOR:
             self.eat(FOR)
             node = self.for_statement()

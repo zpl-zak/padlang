@@ -1,0 +1,19 @@
+program hello;
+VAR plt;
+begin
+    plt := require(matplotlib.pyplot);
+    plt.plot([1,2,3,4]);
+    plt.ylabel("some numbers");
+    plt.show();
+end.
+
+
+$=
+begin
+    import matplotlib.pyplot;
+
+    plot([1,2,3,4]);
+    ylabel("some numbers");
+    show();
+end.
+=$

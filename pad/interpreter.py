@@ -81,8 +81,12 @@ class Interpreter(NodeVisitor):
         return env.visit(node.compound_statement)
 
     def visit_ImportDecl(self, node):
+        imps = {}
+
         for x in node.imps:
-            self.loader.imp(x, True)
+            imps.update(self.loader.imp(x, True, node.assign))
+
+        return imps
 
     def visit_ClassDecl(self, node):
         import pad.parse
@@ -156,14 +160,24 @@ class Interpreter(NodeVisitor):
         except AttributeError:
             pass
 
-        if method is None:
+        if method is None or hasattr(method, '__call__'):
             if type(node) is not pad.parse.Var:
                 cargs = [self.visit(arg) for arg in node.args] if node.args is not None else ''
             else:
                 cargs = node.value
 
+            if hasattr(method, '__call__'):
+                return self.loader.call(method, cargs, self)
+
             if obj is None:
-                return self.loader.call(node.name.value, cargs, self)
+                p = node.name.value
+                n = p.split('.')
+                d = self.get_var(n[0])
+
+                if type(d) is dict:
+                    p = d[n[1]]
+
+                return self.loader.call(p, cargs, self)
             else:
                 if type(node) is pad.parse.Var:
                     return self.loader.objcall(obj, cargs, None)
