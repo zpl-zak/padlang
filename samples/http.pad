@@ -4,9 +4,9 @@ begin
 
     $ We can access module 'requests' directly. $
     var r = requests.get("http://google.com/");
-    print(r.status_code);
-    print(r.headers["content-type"]);
-    print(r.text);
+    print(r:status_code);
+    print(r:headers["content-type"]);
+    print(r:text);
 
     $ Import 'requests' gets removed when exiting following scope. $
     {

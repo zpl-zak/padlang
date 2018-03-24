@@ -1,0 +1,6 @@
+program nested;
+begin
+    var baz = TestBar();
+
+    print(baz:foo:bar);
+end.

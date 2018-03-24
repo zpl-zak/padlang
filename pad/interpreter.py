@@ -431,6 +431,10 @@ class Interpreter(NodeVisitor):
         if '.' in var_name:
             names = var_name.split('.')
             d = self.get_var(names[0])
+
+            if len(names) > 2:
+                raise Exception("Use COLON ':' notation to chain-access object attributes.")
+                
             return self.loader.objcall(d, names[1], None)
 
         res = self.get_var(var_name)
