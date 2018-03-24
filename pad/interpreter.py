@@ -176,6 +176,8 @@ class Interpreter(NodeVisitor):
 
                 if type(d) is dict:
                     p = d[n[1]]
+                elif '.' in p and issubclass(type(d), pad.parse.AST) is False:
+                    return self.loader.objcall(d, n[1], cargs)
 
                 return self.loader.call(p, cargs, self)
             else:
