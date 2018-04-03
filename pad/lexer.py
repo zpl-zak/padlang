@@ -169,7 +169,7 @@ class Lexer(object):
     def peek_token(self, times):
         last = None
         pos = self.pos
-        for x in range(times):
+        for _ in range(times):
             last = self.get_next_token()
 
         self.pos = pos

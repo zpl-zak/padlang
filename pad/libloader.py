@@ -112,11 +112,10 @@ class LibLoader(object):
         imps = {}
         if 'ALL' in name:
             n = '.'.join(name.split('.')[:-1])
-            m = name.split('.')[-1]
             pak = importlib.import_module(n)
             import pkgutil
 
-            for imp, mod, ispkg in pkgutil.iter_modules(pak.__path__):
+            for _, mod, _ in pkgutil.iter_modules(pak.__path__):
                 if mod == "__main__":
                     continue
                 im = importlib.import_module(n+"."+mod, pak)

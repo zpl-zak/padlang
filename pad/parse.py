@@ -885,7 +885,6 @@ class Parser(object):
             return node
 
         key = self.variable()
-        keys = [key]
         self.eat(COLON)
         val = self.factor()
         keyvals = [[key, val]]
